@@ -16,5 +16,7 @@ COPY lab5_server/src ./src
 # Compilar el proyecto
 RUN mvn package
 
+EXPOSE 8080
+
 # Comando para ejecutar la aplicación
 CMD ["java", "-jar", "target/lab5_server-1.0.jar"]
