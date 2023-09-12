@@ -15,6 +15,7 @@ public class Main
         String url = "http://localhost:8080/miServicioSOAP"; // Cambia la URL según tus preferencias
 
         Endpoint.publish(url, implementacion);
+        System.out.println("Hola");
 
         System.out.println("Servidor SOAP iniciado en: " + url);
 
