@@ -2,9 +2,12 @@ name: Docker and Maven Java
 
 on:
   push:
-    branches: [ "prueba" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "prueba" ]
+    branches:
+      - main
+
 
 jobs:
   build:
