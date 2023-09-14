@@ -1,0 +1,1 @@
+docker run --name soap -d -p 80:8080 soap

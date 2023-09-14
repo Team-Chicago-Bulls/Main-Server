@@ -1,0 +1,4 @@
+com\soap\interfaces\ISOAPCancion.class
+com\soap\classes\Cancion.class
+com\soap\classes\SOAPCancion.class
+com\soap\Main.class

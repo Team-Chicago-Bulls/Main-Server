@@ -1,22 +1,23 @@
 # Imagen base
-FROM openjdk:20-jdk
+FROM alpine:latest
+
+#Instalar Java y Maven
+RUN apk add openjdk17-jdk maven
 
 # Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
 # Copiar el archivo pom.xml al directorio de trabajo
-COPY lab5_server/pom.xml .
+COPY server/pom.xml .
 
-# Descargar las dependencias del proyecto
-RUN mvn dependency:go-offline
-
-# Copiar el resto de los archivos del proyecto al directorio de trabajo
-COPY lab5_server/src ./src
+#Copiar el código fuente al directorio de trabajo
+COPY server/src ./src
 
 # Compilar el proyecto
-RUN mvn package
+RUN mvn clean package
 
+# Exponer el puerto 8080
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
-CMD ["java", "-jar", "target/lab5_server-1.0.jar"]
+# Compilar el proyecto
+CMD ["mvn", "exec:java", "-Dexec.mainClass='com.soap.Main'"]
