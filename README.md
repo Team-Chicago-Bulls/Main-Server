@@ -1,2 +1,2 @@
-# Main-Server
-control and management of requests
+# Main-Server SOAP
+Control and management of requests
