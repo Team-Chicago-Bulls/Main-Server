@@ -11,13 +11,16 @@ public interface ISOAPFileService {
     void createDirectory(String path);
 
     @WebMethod
-    void uploadFile(String directory, byte[] fileData);
+    void uploadFile(String directory, String fileName, byte[] fileData);
 
     @WebMethod
     byte[] downloadFile(String path);
 
     @WebMethod
-    void moveOrRenameFile(String oldPath, String newPath);
+    void moveFile(String sourcePath, String destinationPath);
+
+    @WebMethod
+    void renameFile(String oldPath, String newName);
 
     @WebMethod
     void deleteFile(String path);
@@ -27,4 +30,7 @@ public interface ISOAPFileService {
 
     @WebMethod
     ArrayList<String> listFilesInDirectory(String path);
+
+    @WebMethod
+    ArrayList<String> listDirectories();
 }

@@ -1,4 +1,8 @@
-com\soap\interfaces\ISOAPCancion.class
-com\soap\classes\Cancion.class
-com\soap\classes\SOAPCancion.class
+com\soap\classes\File.class
+com\soap\classes\ImageUtils.class
+com\soap\classes\SOAPClient.class
+com\soap\interfaces\RMIServiceAdapter.class
 com\soap\Main.class
+com\soap\classes\SOAPFileService.class
+com\soap\classes\RMIServiceAdapterImpl.class
+com\soap\interfaces\ISOAPFileService.class

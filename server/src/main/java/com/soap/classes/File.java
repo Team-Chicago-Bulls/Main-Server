@@ -15,6 +15,7 @@ public class File implements Serializable {
         this.size = size;
     }
 
+
     public String getName() {
         return name;
     }
