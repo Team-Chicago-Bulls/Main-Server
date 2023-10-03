@@ -20,7 +20,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
             String nodeName = parts[parts.length - 2]; // Obtiene el nombre del nodo desde la ruta
 
             // Especifica la ubicación en la que deseas guardar el archivo en el nodo
-            String nodeDirectory = "/ruta/en/el/nodo/" + nodeName; // Reemplaza con la ruta adecuada en el nodo
+            String nodeDirectory = "/ruta/en/el/nodo/" + nodeName;
 
             // Crea una ruta completa para guardar el archivo en el nodo
             String nodeFilePath = nodeDirectory + "/" + parts[parts.length - 1]; // Obtiene el nombre del archivo desde la ruta
