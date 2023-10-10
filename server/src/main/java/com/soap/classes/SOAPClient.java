@@ -16,7 +16,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class SOAPClient {
@@ -47,7 +46,7 @@ public class SOAPClient {
                 choice = scanner.nextInt();
 
                 switch (choice) {
-                    case 1:
+                  /*  case 1:
                         // Crear directorio en el servidor
                         System.out.print("Ingrese el nombre del directorio a crear: ");
                         String newDir = scanner.next();
@@ -70,7 +69,7 @@ public class SOAPClient {
                         for (String dir : directories) {
                             System.out.println(dir);
                         }
-                        break;
+                        break;*/
                     case 4:
                         // Subir archivo al servidor
                         System.out.print("Ingrese el directorio donde desea subir el archivo: ");
@@ -143,7 +142,7 @@ public class SOAPClient {
                         port.renameFile(oldPath, newName);
                         System.out.println("Archivo renombrado con éxito.");
                         break;
-                    case 7:
+                    /*case 7:
                         // Mover archivo en el servidor
                         System.out.print("Ingrese la ruta del archivo que desea mover (incluyendo el nombre del archivo, ej: /documentos/archivo.txt): ");
                         String sourcePath = scanner.next();
@@ -161,7 +160,7 @@ public class SOAPClient {
                         port.deleteFile(fileToDelete);
                         System.out.println("Archivo eliminado con éxito.");
                         break;
-
+*/
                     case 9:
                         System.out.println("Saliendo...");
                         break;

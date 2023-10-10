@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="RMI">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../RMI/RMI/out/artifacts/RMI_jar/RMI.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

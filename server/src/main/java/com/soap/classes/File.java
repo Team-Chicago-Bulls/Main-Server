@@ -8,13 +8,14 @@ public class File implements Serializable {
     private String name;
     private byte[] content;
     private long size;
+    private String owner; // Agregamos un campo para el propietario del archivo
 
-    public File(String name, byte[] content, long size) {
+    public File(String name, byte[] content, long size, String owner) {
         this.name = name;
         this.content = content;
         this.size = size;
+        this.owner = owner;
     }
-
 
     public String getName() {
         return name;
@@ -40,8 +41,16 @@ public class File implements Serializable {
         this.size = size;
     }
 
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     @Override
     public String toString() {
-        return "File [name=" + name + ", size=" + size + "]";
+        return "File [name=" + name + ", size=" + size + ", owner=" + owner + "]";
     }
 }

@@ -1,57 +1,75 @@
 package com.soap.classes;
 
 import com.soap.interfaces.ISOAPFileService;
-import com.soap.interfaces.RMIServiceAdapter;
+import interfaces.RMIServiceAdapter;
 import jakarta.jws.WebService;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @WebService(endpointInterface = "com.soap.interfaces.ISOAPFileService")
 public class SOAPFileService implements ISOAPFileService {
-	private static final String BASE_DIRECTORY = "\\\\192.168.20.34\\ArchivosSoap\\";
+	private static final String BASE_DIRECTORY = "C:\\Users\\USER\\Documents\\Universidad\\LastSemester\\Distribuidos\\Proyecto de Aula\\ArchivosSOAP\\";
 	private ArrayList<File> files = new ArrayList<>();
-	private RMIServiceAdapter rmiAdapter;
 
-	@Override
-	public void createDirectory(String path) {
-		// Combinar la ruta base con la ruta proporcionada
-		String fullPath = BASE_DIRECTORY + path;
+	// Estructura para mapeo de usuarios a carpetas
+	private Map<String, String> userToFolderMap = new HashMap<>();
 
-		// Crear un objeto File para el directorio
-		File directory = new File(fullPath);
-
-		// Verificar si el directorio ya existe
-		if (directory.exists()) {
-			System.out.println("El directorio ya existe.");
-		} else {
-			// Intentar crear el directorio
-			if (directory.mkdirs()) {
-				System.out.println("Directorio creado con éxito.");
-			} else {
-				System.err.println("Error al crear el directorio.");
-			}
-		}
+	// Método para obtener la carpeta de un usuario o crear una nueva si no existe
+	private String getUserFolder(String user) {
+		return userToFolderMap.computeIfAbsent(user, key -> {
+			String folderId = generateUniqueFolderId(); // Implementa esto para generar un ID único
+			createDirectory(user, folderId); // Crea la carpeta en el servidor SOAP
+			return folderId;
+		});
 	}
 
+	private String generateUniqueFolderId(){
+		String uniqueId = UUID.randomUUID().toString();
+		return uniqueId;
+	}
+
+	// Método para obtener la carpeta de un usuario para subcarpetas
+	private String getUserSubFolder(String user, String parentFolder) {
+		String parentFolderId = getUserFolder(user);
+		return parentFolderId + "/" + generateUniqueSubFolderId(); // Implementacion ID unico
+	}
+
+	private String generateUniqueSubFolderId() {
+		// Generar un UUID aleatorio como ID único para la subcarpeta
+		String uniqueId = UUID.randomUUID().toString();
+		return uniqueId;
+	}
+
+
 	@Override
-	public ArrayList<String> listDirectories() {
-		File baseDirectory = new File(BASE_DIRECTORY);
-		ArrayList<String> directoryNames = new ArrayList<>();
+	public void createDirectory(String user, String path) {
+		String userFolder = getUserFolder(user);
+		String fullPath = BASE_DIRECTORY + userFolder + "/" + path;
 
-		if (baseDirectory.exists() && baseDirectory.isDirectory()) {
-			File[] directories = baseDirectory.listFiles(File::isDirectory);
-
-			if (directories != null) {
-				for (File directory : directories) {
-					directoryNames.add(directory.getName());
-				}
+			try {
+				RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+				rmiAdapter.createDirectory(userFolder, path);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				System.err.println("Error al cargar una copia del archivo en el nodo RMI.");
 			}
+	}
+
+
+	@Override
+	public ArrayList<String> listDirectories(String folderID) {
+		ArrayList<String> directoryNames = new ArrayList<>();
+		try {
+			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			directoryNames = rmiAdapter.listDirectories(folderID);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			System.err.println("Error al cargar una copia del archivo en el nodo RMI.");
 		}
 
 		return directoryNames;
@@ -59,22 +77,10 @@ public class SOAPFileService implements ISOAPFileService {
 
 
 	@Override
-	public void uploadFile(String directory, String fileName, byte[] fileData) {
-		// Lógica para cargar el archivo en el servidor SOAP
-		String filePath = BASE_DIRECTORY + directory + File.separator + fileName;
-		try (FileOutputStream fos = new FileOutputStream(filePath)) {
-			fos.write(fileData);
-			System.out.println("Archivo subido con éxito al servidor SOAP.");
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.err.println("Error al cargar el archivo en el servidor SOAP.");
-			return; // Si ocurre un error al cargar en SOAP, no proceder a RMI
-		}
-
-		// Llamar al adaptador RMI para cargar una copia en el nodo RMI
+	public void uploadFile(String folderID, String fileName, byte[] fileData) {
 		try {
 			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
-			rmiAdapter.uploadFileToNode(filePath, fileData);
+			rmiAdapter.uploadFileToNode(folderID, fileName, fileData);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			System.err.println("Error al cargar una copia del archivo en el nodo RMI.");
@@ -85,33 +91,63 @@ public class SOAPFileService implements ISOAPFileService {
 
 
 	@Override
-	public byte[] downloadFile(String path) {
-		// Aquí implementa la lógica para descargar un archivo y devuelve sus datos en forma de arreglo de bytes
-		try {
-			File file = new File(BASE_DIRECTORY + path);
-			if (file.exists()) {
-				byte[] fileBytes = Files.readAllBytes(Paths.get(BASE_DIRECTORY + path));
+	public byte[] downloadFile(String fileID) {
+		byte[] file = new byte[0];
 
-				// Verificar si el archivo es una imagen (por ejemplo, jpg, png, gif)
-				String fileName = file.getName();
-				String extension = getFileExtension(fileName);
-				if (extension != null && (extension.equalsIgnoreCase("jpg") || extension.equalsIgnoreCase("png") || extension.equalsIgnoreCase("gif"))) {
-					// Si es una imagen, devolver los datos sin realizar ninguna operación adicional
-					System.out.println("Imagen descargada con éxito.");
-					return fileBytes;
-				} else {
-					// Si no es una imagen, mostrar un mensaje y devolver null
-					System.err.println("El archivo no es una imagen.");
-					return null;
-				}
-			} else {
-				System.err.println("El archivo no existe.");
-			}
-		} catch (IOException e) {
+		try {
+			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			file = rmiAdapter.downloadFile(fileID);
+		} catch (RemoteException e) {
 			e.printStackTrace();
-			System.err.println("Error al descargar el archivo.");
+			System.err.println("Error al cargar una copia del archivo en el nodo RMI.");
 		}
-		return null;
+		return file;
+	}
+
+	@Override
+	public void moveFile(String fileID, String folderID, String newFolderID) {
+		try {
+			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			rmiAdapter.moveFile(fileID, folderID, newFolderID);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error inesperado al mover el archivo.");
+		}
+	}
+
+	@Override
+	public void renameFile(String fileID, String newName) {
+		try {
+			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			rmiAdapter.renameFile(fileID, newName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error inesperado al renombrar el archivo.");
+		}
+	}
+
+	@Override
+	public ArrayList<String> listFilesInDirectory(String folderID) {
+		ArrayList<String> fileNames = new ArrayList<>();
+		try {
+			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			fileNames = rmiAdapter.listFilesInDirectory(folderID);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error inesperado al renombrar el archivo.");
+		}
+		return fileNames;
+	}
+
+	@Override
+	public void deleteFile(String fileID) {
+		try {
+			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			rmiAdapter.deleteFile(fileID);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error inesperado al renombrar el archivo.");
+		}
 	}
 
 	private String getFileExtension(String fileName) {
@@ -123,116 +159,22 @@ public class SOAPFileService implements ISOAPFileService {
 	}
 
 
-	@Override
-	public void moveFile(String sourcePath, String destinationDirectory) {
-		try {
-			// Construir rutas completas
-			String sourceFilePath = BASE_DIRECTORY + sourcePath;
-			String destinationFilePath = BASE_DIRECTORY + destinationDirectory + File.separator + new File(sourcePath).getName();
-
-			// Verificar si el archivo fuente existe
-			File sourceFile = new File(sourceFilePath);
-			if (sourceFile.exists()) {
-				// Crear el directorio de destino si no existe
-				File destinationDir = new File(BASE_DIRECTORY + destinationDirectory);
-				if (!destinationDir.exists()) {
-					destinationDir.mkdirs();
-				}
-
-				// Mover el archivo fuente al destino
-				if (sourceFile.renameTo(new File(destinationFilePath))) {
-					System.out.println("Archivo movido con éxito.");
-				} else {
-					System.err.println("Error al mover el archivo.");
-				}
-			} else {
-				System.err.println("El archivo fuente no existe.");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Error inesperado al mover el archivo.");
-		}
-	}
-
-
-
-	@Override
-	public void renameFile(String oldPath, String newName) {
-		try {
-			// Construir rutas completas
-			String oldFilePath = BASE_DIRECTORY + oldPath;
-			String directoryPath = new File(oldFilePath).getParent(); // Obtener la ruta del directorio
-			String newFilePath = directoryPath + File.separator + newName; // Usar el mismo directorio con el nuevo nombre
-
-			// Verificar si el archivo existe en la ubicación original
-			File oldFile = new File(oldFilePath);
-			if (oldFile.exists()) {
-				// Crear el archivo con el nuevo nombre en el mismo directorio
-				File newFile = new File(newFilePath);
-
-				// Renombrar el archivo
-				if (oldFile.renameTo(newFile)) {
-					System.out.println("Archivo renombrado con éxito.");
-				} else {
-					System.err.println("Error al renombrar el archivo.");
-				}
-			} else {
-				System.err.println("El archivo no existe en la ubicación original.");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Error inesperado al renombrar el archivo.");
-		}
-	}
 
 
 
 
 	@Override
-	public void deleteFile(String path) {
-		// Aquí implementa la lógica para eliminar un archivo
-		File fileToDelete = new File(BASE_DIRECTORY + path);
-		if (fileToDelete.exists()) {
-			if (fileToDelete.delete()) {
-				System.out.println("Archivo eliminado con éxito.");
-			} else {
-				System.err.println("Error al eliminar el archivo.");
-			}
-		} else {
-			System.err.println("El archivo no existe.");
-		}
-	}
-
-	@Override
-	public void shareFile(String path, String user) {
+	public void shareFile(String user, String path, String recipient) {
 		// Aquí implementa la lógica para compartir un archivo con un usuario específico
-		File fileToShare = new File(BASE_DIRECTORY + path);
+		String userFolder = getUserFolder(user);
+		File fileToShare = new File(BASE_DIRECTORY + userFolder + "/" + path);
 		if (fileToShare.exists()) {
 			// Agrega la lógica para gestionar la compartición con el usuario
-			System.out.println("Archivo compartido con éxito con " + user);
+			System.out.println("Archivo compartido con éxito con " + recipient);
 		} else {
 			System.err.println("El archivo no existe.");
 		}
 	}
 
-	@Override
-	public ArrayList<String> listFilesInDirectory(String path) {
-		// Aquí implementa la lógica para listar los archivos en un directorio y devuelve sus nombres
-		ArrayList<String> fileNames = new ArrayList<>();
-		File directory = new File(BASE_DIRECTORY + path);
-		if (directory.exists() && directory.isDirectory()) {
-			File[] files = directory.listFiles();
-			if (files != null) {
-				for (File file : files) {
-					fileNames.add(file.getName());
-				}
-				System.out.println("Archivos listados con éxito.");
-			} else {
-				System.err.println("Error al listar archivos.");
-			}
-		} else {
-			System.err.println("El directorio no existe o no es válido.");
-		}
-		return fileNames;
-	}
+
 }
