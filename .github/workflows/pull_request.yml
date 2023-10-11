@@ -1,0 +1,43 @@
+name: Pull Request Sec
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  pr-approval:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check branch name
+        id: branch-check
+        run: |
+          if [[ "${{ github.ref }}" == "refs/pull/*/merge" ]]; then
+            echo "::set-output name=external_branch::true"
+          else
+            echo "::set-output name=external_branch::false"
+          fi
+
+      - name: Request approval
+        if: steps.branch-check.outputs.external_branch == 'true'
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pullRequest } = await github.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+
+            await github.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              reviewers: pullRequest.requested_reviewers.map(reviewer => reviewer.login)
+            });
