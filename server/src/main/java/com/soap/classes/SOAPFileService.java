@@ -1,7 +1,6 @@
 package com.soap.classes;
 
-import com.soap.interfaces.ISOAPFileService;
-import interfaces.RMIServiceAdapter;
+
 import jakarta.jws.WebService;
 
 import java.io.File;
@@ -10,6 +9,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import interfaces.RMIServiceAdapter;
+import com.soap.interfaces.ISOAPFileService;
 
 @WebService(endpointInterface = "com.soap.interfaces.ISOAPFileService")
 public class SOAPFileService implements ISOAPFileService {
@@ -60,10 +62,31 @@ public class SOAPFileService implements ISOAPFileService {
 			}
 	}
 
+	@Override
+	public void createSubdirectory(String user, String parentFolderName, String subfolderName) {
+		try {
+			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+
+			// Obtén la ruta completa del directorio principal del usuario
+			String parentFolderPath = user + "/" + parentFolderName;
+
+			// Obtén la ruta completa del nuevo subdirectorio
+			String subfolderPath = parentFolderPath + "/" + subfolderName;
+
+			// Llama al método correspondiente en el servicio RMI
+			rmiAdapter.createDirectory(user, subfolderPath);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error al crear el subdirectorio.");
+		}
+	}
+
+
 
 	@Override
 	public ArrayList<String> listDirectories(String folderID) {
 		ArrayList<String> directoryNames = new ArrayList<>();
+
 		try {
 			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
 			directoryNames = rmiAdapter.listDirectories(folderID);
@@ -77,32 +100,33 @@ public class SOAPFileService implements ISOAPFileService {
 
 
 	@Override
-	public void uploadFile(String folderID, String fileName, byte[] fileData) {
+	public void uploadFile(String user, String folderName, String fileName, String fileData) {
 		try {
 			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
-			rmiAdapter.uploadFileToNode(folderID, fileName, fileData);
+			rmiAdapter.uploadFileToNode(user, folderName, fileName, fileData);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			System.err.println("Error al cargar una copia del archivo en el nodo RMI.");
 		}
-
 	}
+
 
 
 
 	@Override
-	public byte[] downloadFile(String fileID) {
-		byte[] file = new byte[0];
+	public File downloadFile(String user, String fileName) {
+		File file1 = null;
 
 		try {
 			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
-			file = rmiAdapter.downloadFile(fileID);
+			file1 = rmiAdapter.downloadFile(user, fileName);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			System.err.println("Error al cargar una copia del archivo en el nodo RMI.");
 		}
-		return file;
+		return file1;
 	}
+
 
 	@Override
 	public void moveFile(String fileID, String folderID, String newFolderID) {
@@ -116,39 +140,42 @@ public class SOAPFileService implements ISOAPFileService {
 	}
 
 	@Override
-	public void renameFile(String fileID, String newName) {
+	public void renameFile(String user, String currentFileName, String newFileName) {
 		try {
 			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
-			rmiAdapter.renameFile(fileID, newName);
+			rmiAdapter.renameFile(user, currentFileName, newFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Error inesperado al renombrar el archivo.");
 		}
 	}
 
+
 	@Override
-	public ArrayList<String> listFilesInDirectory(String folderID) {
+	public ArrayList<String> listFilesInDirectory(String user, String folderName) {
 		ArrayList<String> fileNames = new ArrayList<>();
 		try {
 			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
-			fileNames = rmiAdapter.listFilesInDirectory(folderID);
+			fileNames = rmiAdapter.listFilesInDirectory(user, folderName);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.err.println("Error inesperado al renombrar el archivo.");
+			System.err.println("Error inesperado al listar archivos en el directorio.");
 		}
 		return fileNames;
 	}
 
+
 	@Override
-	public void deleteFile(String fileID) {
+	public void deleteFile(String user, String fileName) {
 		try {
 			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
-			rmiAdapter.deleteFile(fileID);
+			rmiAdapter.deleteFile(user, fileName);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.err.println("Error inesperado al renombrar el archivo.");
+			System.err.println("Error inesperado al eliminar el archivo.");
 		}
 	}
+
 
 	private String getFileExtension(String fileName) {
 		int lastDotIndex = fileName.lastIndexOf(".");
