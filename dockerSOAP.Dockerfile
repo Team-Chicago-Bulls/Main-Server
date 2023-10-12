@@ -19,6 +19,7 @@ RUN mvn clean package
 # Exponer el puerto 8080
 EXPOSE 8080
 
+# Exponer el puerto 27017
 EXPOSE 27017
 
 # Compilar el proyecto
