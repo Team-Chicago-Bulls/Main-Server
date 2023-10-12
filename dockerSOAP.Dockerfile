@@ -19,5 +19,7 @@ RUN mvn clean package
 # Exponer el puerto 8080
 EXPOSE 8080
 
+EXPOSE 27017
+
 # Compilar el proyecto
 CMD ["mvn", "exec:java", "-Dexec.mainClass='com.example.demo.Main'"]
