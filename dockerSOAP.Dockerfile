@@ -23,4 +23,4 @@ EXPOSE 8080
 EXPOSE 27017
 
 # Compilar el proyecto
-CMD ["pwd"]
+CMD ["ls","-R","src"]
