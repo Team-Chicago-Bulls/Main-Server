@@ -14,6 +14,10 @@ COPY server/.classpath .
 
 COPY server/.project .
 
+COPY server/.idea ./.idea
+
+COPY server/.settings ./.settings
+
 #Copiar el código fuente al directorio de trabajo
 COPY server/src ./src
 
