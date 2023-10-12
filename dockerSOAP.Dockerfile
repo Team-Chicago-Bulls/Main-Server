@@ -8,7 +8,11 @@ RUN apk add openjdk17-jdk maven
 WORKDIR /app
 
 # Copiar el archivo pom.xml al directorio de trabajo
-COPY server/pom.xml .
+COPY server/pom.xml . 
+
+COPY server/.classpath .
+
+COPY server/.project .
 
 #Copiar el código fuente al directorio de trabajo
 COPY server/src ./src
