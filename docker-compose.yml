@@ -1,0 +1,13 @@
+version: "3"
+services:
+  
+  soap:
+    build: 
+      context: .
+      dockerfile: dockerSOAP.Dockerfile
+    container_name: "soap"
+    restart: unless-stopped
+    ports:
+      - 80:8080
+      - 27017:27017
+
