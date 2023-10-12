@@ -10,20 +10,7 @@ on:
 
 
 jobs:
-
-  test: 
-    runs-on: self-hosted
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 20
-      uses: actions/setup-java@v3
-      with:
-        java-version: '20'
-        distribution: 'temurin'
-        cache: maven
-
   build:
-    needs: test
     runs-on: self-hosted
 
     steps:
@@ -31,14 +18,9 @@ jobs:
     - name: Prepare script permissions
       run: |
         chmod 777 run.sh
-    - name: Build container
+    - name: stop docker
       run: |
-        if [[ -z $(docker ps -a -q -f name=soap) ]]; then
-          docker build -t soap -f dockerSOAP.Dockerfile .
-        else
-          docker stop soap && docker rm soap && docker rmi soap
-          docker build -t soap -f dockerSOAP.Dockerfile .
-        fi
+        docker compose down --rmi all --remove-orphans
     - name: Run
       run: ./run.sh
     
