@@ -20,5 +20,4 @@ RUN mvn clean package
 EXPOSE 8080
 
 # Compilar el proyecto
-#CMD "mvn", "exec:java", "-Dexec.mainClass='com.example.demo.Main'"]
-CMD ["tail", "-f", "/dev/null"]
+CMD "mvn", "exec:java", "-Dexec.mainClass='com.example.demo.Main'"]
