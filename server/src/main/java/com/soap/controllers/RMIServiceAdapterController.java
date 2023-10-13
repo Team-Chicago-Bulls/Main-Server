@@ -1,6 +1,6 @@
 package com.soap.controllers;
 
-
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interfaces.RMIServiceAdapter;
 import org.apache.coyote.Response;
@@ -9,15 +9,11 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.http.ResponseEntity;
 
-
-
-
 import com.soap.classes.RMIServiceAdapterImpl;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +31,8 @@ public class RMIServiceAdapterController {
     public String UID;
 
     @PostMapping("/createDirectory")
-    public ResponseEntity<Map<String, Object>> createDirectory(@RequestBody Map<String, String>directorio) throws RemoteException {
+    public ResponseEntity<Map<String, Object>> createDirectory(@RequestBody Map<String, String> directorio)
+            throws RemoteException {
         try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
             String user = directorio.get("user");
@@ -43,7 +40,7 @@ public class RMIServiceAdapterController {
             rmiService.createDirectory(user, path);
 
             return ResponseEntity.status(200).build();
-        }catch (Exception e){
+        } catch (Exception e) {
 
             System.out.println(e.getMessage());
 
@@ -51,8 +48,10 @@ public class RMIServiceAdapterController {
         return ResponseEntity.status(500).build();
 
     }
+
     @PostMapping("/createSubDirectory")
-    public ResponseEntity<Map<String, Object>> createSubDirectory(@RequestBody Map<String, String>SubDirectory) throws RemoteException {
+    public ResponseEntity<Map<String, Object>> createSubDirectory(@RequestBody Map<String, String> SubDirectory)
+            throws RemoteException {
         try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
             String user = SubDirectory.get("user");
@@ -61,7 +60,7 @@ public class RMIServiceAdapterController {
             rmiService.createSubdirectory(user, parentFolderName, subfolderName);
 
             return ResponseEntity.status(200).build();
-        }catch (Exception e){
+        } catch (Exception e) {
 
             System.out.println(e.getMessage());
 
@@ -69,9 +68,11 @@ public class RMIServiceAdapterController {
         return ResponseEntity.status(500).build();
 
     }
+
     @PostMapping("/uploadFileToNode")
-    public ResponseEntity<Map<String, Object>> uploadFileToNode(@RequestBody Map<String, String>uploadFile) throws RemoteException{
-        try{
+    public ResponseEntity<Map<String, Object>> uploadFileToNode(@RequestBody Map<String, String> uploadFile)
+            throws RemoteException {
+        try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
             String user = uploadFile.get("user");
             String folderName = uploadFile.get("folderName");
@@ -80,12 +81,13 @@ public class RMIServiceAdapterController {
             rmiService.uploadFileToNode(user, folderName, fileName, fileData);
             return ResponseEntity.status(200).build();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return ResponseEntity.status(500).build();
 
     }
+
     @GetMapping("/listDirectories")
     public ResponseEntity<List<String>> listDirectories(@RequestBody Map<String, String> listDirectories) {
         String folderID = listDirectories.get("folderID");
@@ -106,11 +108,11 @@ public class RMIServiceAdapterController {
         }
     }
 
-
     @GetMapping("/downloadFile")
-    public ResponseEntity<InputStreamResource> downloadFile(@RequestBody Map<String, String>downloadFile) throws RemoteException{
+    public ResponseEntity<InputStreamResource> downloadFile(@RequestBody Map<String, String> downloadFile)
+            throws RemoteException {
         File file1 = null;
-        try{
+        try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
             String user = downloadFile.get("user");
             String fileName = downloadFile.get("fileName");
@@ -122,14 +124,14 @@ public class RMIServiceAdapterController {
                     .contentLength(file1.length())
                     .body(resource);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return ResponseEntity.status(500).build();
 
     }
 
-    //Autenticación de usuario
+    // Autenticación de usuario
     @PostMapping("/getAuthToken")
     public ResponseEntity<String> getAuthToken(@RequestBody Map<String, String> userCredentials) {
 
@@ -146,7 +148,6 @@ public class RMIServiceAdapterController {
             String correo = userCredentials.get("correo");
             String contrasena = userCredentials.get("contrasena");
 
-
             // Construye un objeto JSON con las credenciales
             Map<String, String> credentialsMap = new HashMap<>();
             credentialsMap.put("correo", correo);
@@ -156,17 +157,19 @@ public class RMIServiceAdapterController {
             ObjectMapper objectMapper = new ObjectMapper();
             String requestBody = objectMapper.writeValueAsString(credentialsMap);
 
-
             // Crea una entidad HTTP con el encabezado y el cuerpo
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
             // Realiza una solicitud POST al servidor de autenticación
-            ResponseEntity<String> response = restTemplate.postForEntity("http://distribuidos4.bucaramanga.upb.edu.co/user/log_user", requestEntity, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    "http://distribuidos4.bucaramanga.upb.edu.co/user/log_user", requestEntity, String.class);
 
             // Obtén el token del cuerpo de la respuesta
             String token = response.getBody();
-            token = token.substring(1, token.length() - 1);
-            authToken = token;
+
+            JsonNode tk = objectMapper.readTree(token);
+
+            authToken = tk.get("token").asText();
             return ResponseEntity.ok(token);
 
         } catch (Exception e) {
@@ -176,8 +179,7 @@ public class RMIServiceAdapterController {
 
     }
 
-
-    //Autenticación de usuario
+    // Autenticación de usuario
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody Map<String, String> userCredentials) {
 
@@ -194,7 +196,6 @@ public class RMIServiceAdapterController {
             String correo = userCredentials.get("correo");
             String contrasena = userCredentials.get("contrasena");
 
-
             // Construye un objeto JSON con las credenciales
             Map<String, String> credentialsMap = new HashMap<>();
             credentialsMap.put("correo", correo);
@@ -204,21 +205,22 @@ public class RMIServiceAdapterController {
             ObjectMapper objectMapper = new ObjectMapper();
             String requestBody = objectMapper.writeValueAsString(credentialsMap);
 
-
             // Crea una entidad HTTP con el encabezado y el cuerpo
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
             // Realiza una solicitud POST al servidor de autenticación
-            restTemplate.postForEntity("http://distribuidos4.bucaramanga.upb.edu.co/user/register_user", requestEntity, String.class);
+            restTemplate.postForEntity("http://distribuidos4.bucaramanga.upb.edu.co/user/register_user", requestEntity,
+                    String.class);
 
-            ResponseEntity<String> response = restTemplate.postForEntity("http://distribuidos4.bucaramanga.upb.edu.co/user/log_user", requestEntity, String.class);
-
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    "http://distribuidos4.bucaramanga.upb.edu.co/user/log_user", requestEntity, String.class);
 
             // Obtén el token del cuerpo de la respuesta
             String token = response.getBody();
+            JsonNode tk = objectMapper.readTree(token);
 
-            registerUserBd(getUserInfo(token.substring(1, token.length() - 1)));
-    
+            DataBaseServerController.registerUserBd(getUserInfo(tk.get("token").asText()));
+
             authToken = token;
             return ResponseEntity.ok(token);
 
@@ -227,65 +229,32 @@ public class RMIServiceAdapterController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-
     }
 
-
-    public void registerUserBd(String id) {
-        try {
-            System.out.println(id);
-            // Configura RestTemplate
-            RestTemplate restTemplate = new RestTemplate();
-            String url = "http://localhost:8000/api/user";
-
-            // Crea un encabezado con el tipo de contenido
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, String> idMap = new HashMap<>();
-            idMap.put("id", id);
-           
-            ObjectMapper objectMapper = new ObjectMapper();
-            String requestBody = objectMapper.writeValueAsString(idMap);
-
-
-            // Crea una entidad HTTP con el encabezado y el cuerpo
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
-
-            // Realiza una solicitud POST al servidor de autenticación
-            restTemplate.postForEntity(url, requestEntity, String.class);
-
-
-        } catch (Exception e) {
-            System.err.println("Error al obtener el token: " + e.getMessage());
-        }
-    }
-  
     public String getUserInfo(String authToken) {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://distribuidos4.bucaramanga.upb.edu.co/user/log_user_token/" + authToken;
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-   
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 String user = response.getBody();
-                user = user.substring(1, user.length() - 1);
-                UID = user;
-                return user;
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode id = objectMapper.readTree(user);
+                
+                UID = id.get("id").asText();
+                return id.get("id").asText();
 
             } else {
                 // Manejar otros códigos de estado si es necesario
                 return "Error al obtener información del usuario";
             }
-        } catch (RestClientException e) {
+        } catch (Exception e) {
             // Manejar errores de comunicación con el servidor
             return "Error en la solicitud al servidor";
         }
     }
 
-
-
 }
-
