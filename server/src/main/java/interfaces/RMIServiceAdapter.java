@@ -10,6 +10,8 @@ import java.util.ArrayList;
 public interface RMIServiceAdapter extends Remote {
     void uploadFileToNode(String user, String folderName, String fileName, String base64Data) throws RemoteException;
 
+    void uploadFileToNode(String user, String fileName, String base64Data) throws RemoteException;
+
     void createDirectory(String user, String path) throws RemoteException;
 
     ArrayList<String> listDirectories(String folderID) throws RemoteException;
