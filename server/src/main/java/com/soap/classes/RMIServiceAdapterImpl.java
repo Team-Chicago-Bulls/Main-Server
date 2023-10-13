@@ -18,7 +18,7 @@ import java.io.File;
 
 @Component
 public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMIServiceAdapter {
-    private static final String BASE_DIRECTORY = "C:\\Users\\USER\\Documents\\Universidad\\LastSemester\\Distribuidos\\Proyecto de Aula\\ArchivosSOAP";
+    private static final String BASE_DIRECTORY = "D:\\distro_java\\test_rmi";
     // Estructura para mapeo de usuarios a carpetas
     private Map<String, String> userToFolderMap = new HashMap<>();
     private Map<String, String> fileIDToUserMap = new HashMap<>();

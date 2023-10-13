@@ -165,7 +165,60 @@ public class RMIServiceAdapterController {
 
             // Obtén el token del cuerpo de la respuesta
             String token = response.getBody();
-            System.out.println(token);
+            token = token.substring(1, token.length() - 1);
+            authToken = token;
+            return ResponseEntity.ok(token);
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener el token: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+    }
+
+
+    //Autenticación de usuario
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody Map<String, String> userCredentials) {
+
+        try {
+
+            // Configura RestTemplate
+            RestTemplate restTemplate = new RestTemplate();
+
+            // Crea un encabezado con el tipo de contenido
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // Obtén el nombre de usuario y contraseña del cuerpo de la solicitud
+            String correo = userCredentials.get("correo");
+            String contrasena = userCredentials.get("contrasena");
+
+
+            // Construye un objeto JSON con las credenciales
+            Map<String, String> credentialsMap = new HashMap<>();
+            credentialsMap.put("correo", correo);
+            credentialsMap.put("contrasena", contrasena);
+
+            // Convierte el objeto JSON a una cadena
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(credentialsMap);
+
+
+            // Crea una entidad HTTP con el encabezado y el cuerpo
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+
+            // Realiza una solicitud POST al servidor de autenticación
+            restTemplate.postForEntity("http://distribuidos4.bucaramanga.upb.edu.co/user/register_user", requestEntity, String.class);
+
+            ResponseEntity<String> response = restTemplate.postForEntity("http://distribuidos4.bucaramanga.upb.edu.co/user/log_user", requestEntity, String.class);
+
+
+            // Obtén el token del cuerpo de la respuesta
+            String token = response.getBody();
+
+            registerUserBd(getUserInfo(token.substring(1, token.length() - 1)));
+    
             authToken = token;
             return ResponseEntity.ok(token);
 
@@ -177,27 +230,58 @@ public class RMIServiceAdapterController {
 
     }
 
-    @GetMapping("/getUserId")
-    public ResponseEntity<String> getUserInfo(@RequestParam("token") String authToken) {
+
+    public void registerUserBd(String id) {
+        try {
+            System.out.println(id);
+            // Configura RestTemplate
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "http://localhost:8000/api/user";
+
+            // Crea un encabezado con el tipo de contenido
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, String> idMap = new HashMap<>();
+            idMap.put("id", id);
+           
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(idMap);
+
+
+            // Crea una entidad HTTP con el encabezado y el cuerpo
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+
+            // Realiza una solicitud POST al servidor de autenticación
+            restTemplate.postForEntity(url, requestEntity, String.class);
+
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener el token: " + e.getMessage());
+        }
+    }
+  
+    public String getUserInfo(String authToken) {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://distribuidos4.bucaramanga.upb.edu.co/user/log_user_token/" + authToken;
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+   
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 String user = response.getBody();
-                System.out.println(user);
+                user = user.substring(1, user.length() - 1);
                 UID = user;
-                return ResponseEntity.ok(user);
+                return user;
 
             } else {
                 // Manejar otros códigos de estado si es necesario
-                return ResponseEntity.status(response.getStatusCode()).body("Error al obtener información del usuario");
+                return "Error al obtener información del usuario";
             }
         } catch (RestClientException e) {
             // Manejar errores de comunicación con el servidor
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en la solicitud al servidor");
+            return "Error en la solicitud al servidor";
         }
     }
 
