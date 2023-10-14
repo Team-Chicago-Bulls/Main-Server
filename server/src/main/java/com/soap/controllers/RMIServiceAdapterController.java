@@ -30,6 +30,9 @@ public class RMIServiceAdapterController {
     public String authToken;
     public String UID;
 
+    
+
+
     @PostMapping("/createDirectory")
     public ResponseEntity<Map<String, Object>> createDirectory(@RequestBody Map<String, String> directorio)
             throws RemoteException {
@@ -79,6 +82,9 @@ public class RMIServiceAdapterController {
             String fileName = uploadFile.get("fileName");
             String fileData = uploadFile.get("fileData");
             rmiService.uploadFileToNode(user, folderName, fileName, fileData);
+
+
+
             return ResponseEntity.status(200).build();
 
         } catch (Exception e) {

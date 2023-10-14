@@ -6,9 +6,10 @@ import java.io.File;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Map;
 @Component
 public interface RMIServiceAdapter extends Remote {
-    void uploadFileToNode(String user, String folderName, String fileName, String base64Data) throws RemoteException;
+    Map<String,String> uploadFileToNode(String user, String folderName, String fileName, String base64Data) throws RemoteException;
 
     void createDirectory(String user, String path) throws RemoteException;
 

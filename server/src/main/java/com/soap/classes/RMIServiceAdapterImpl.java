@@ -13,8 +13,11 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.io.File;
+
 
 @Component
 public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMIServiceAdapter {
@@ -23,19 +26,43 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     private Map<String, String> userToFolderMap = new HashMap<>();
     private Map<String, String> fileIDToUserMap = new HashMap<>();
     private RMIServiceAdapter rmiService; // Variable para almacenar la referencia al servicio RMI
+    Map<String,String> nodos = new HashMap<String,String>();
 
+    Registry registry;
 
     public RMIServiceAdapterImpl() throws RemoteException {
         super();
         try {
             // Obtener la referencia al servicio RMI en el constructor
-            Registry registry = LocateRegistry.getRegistry("localhost", 1099);
-            rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
+            //Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+            //rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
+
+            nodos.put("nodo1", "http://10.152.164.230");
+            nodos.put("nodo2", "http://10.152.164.231");
+            nodos.put("nodo3", "http://10.152.164.232");
+            nodos.put("nodo4", "http://10.152.164.233");
 
         } catch (Exception e) {
             e.printStackTrace();
             throw new RemoteException("Error al obtener la referencia al servicio RMI.", e);
         }
+    }
+
+    public String[] getNodos() {
+        String[] nodos = new String[2];
+        Random random = new Random();
+        String nodoPrincipal = "nodo" + String.valueOf(1 + random.nextInt(4));
+        String nodoCopia = "nodo" + String.valueOf(1 + random.nextInt(4));
+
+        do {
+            nodoCopia = "nodo" + String.valueOf(1 + random.nextInt(4));
+        } while (nodoPrincipal.equals(nodoCopia));
+        
+        nodos[0] = nodoPrincipal;
+        nodos[1] = nodoCopia;
+
+
+        return nodos;
     }
 
     @Override
@@ -48,7 +75,12 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
             //String subfolderPath = parentFolderPath + "\\" + subfolderName;
 
             // Llama al método correspondiente en el servicio RMI
+           
+           
             rmiService.createSubdirectory(user, parentFolderName,subfolderName);
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new RemoteException("Error al crear el subdirectorio.", e);
@@ -57,13 +89,37 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
 
 
     @Override
-    public void uploadFileToNode(String user, String folderName, String fileName, String fileData) throws RemoteException {
+    public Map<String,String> uploadFileToNode(String user, String folderName, String fileName, String fileData) throws RemoteException {
         try {
-            rmiService.uploadFileToNode(user, folderName, fileName, fileData);
+            String[] nodos = getNodos();
+            registry = LocateRegistry.getRegistry(nodos[0], 1099);
+            rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
+
+            Map<String,String> principal = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
+
+
+            registry = LocateRegistry.getRegistry(nodos[1], 1099);
+            rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
+
+            Map<String,String> copia = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
+
+            Map<String,String> resultado = new HashMap<String,String>();
+            
+            resultado.put("error", principal.get("error"));
+            resultado.put("nombre", fileName);
+            resultado.put("nodo", nodos[0]);
+            resultado.put("size", principal.get("size"));
+            resultado.put("ruta", principal.get("ruta"));
+            resultado.put("nodo_copia", nodos[1]);
+            resultado.put("route_copia", copia.get("ruta"));
+            
+
+            return resultado;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RemoteException("Error al cargar el archivo en el nodo.", e);
         }
+        
     }
 
 

@@ -27,13 +27,40 @@ import java.util.Map;
 
 
 public class DataBaseServerController {
+
+    public static void uploadFileBD(Map<String,String> resultado) {
+        try {
+            // Configura RestTemplate
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file";
+
+            // Crea un encabezado con el tipo de contenido
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+        
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(resultado);
+
+
+            // Crea una entidad HTTP con el encabezado y el cuerpo
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+
+            // Realiza una solicitud POST al servidor de autenticación
+            restTemplate.postForEntity(url, requestEntity, String.class);
+
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener el token: " + e.getMessage());
+        }
+    }
     
 
     public static void registerUserBd(String id) {
         try {
             // Configura RestTemplate
             RestTemplate restTemplate = new RestTemplate();
-            String url = "http://localhost:8000/api/user";
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/user";
 
             // Crea un encabezado con el tipo de contenido
             HttpHeaders headers = new HttpHeaders();
