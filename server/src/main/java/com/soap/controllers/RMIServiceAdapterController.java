@@ -73,16 +73,21 @@ public class RMIServiceAdapterController {
     }
 
     @PostMapping("/uploadFileToNode")
-    public ResponseEntity<Map<String, Object>> uploadFileToNode(@RequestBody Map<String, String> uploadFile)
+    public ResponseEntity<Map<String, Object>> uploadFileToNode(@RequestBody Map<String, String> uploadFile, @RequestHeader Map<String, String> headers)
             throws RemoteException {
         try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
-            String user = uploadFile.get("user");
+
+
+            String user = headers.get("authorization");
+            //String user = uploadFile.get("user");
             String folderName = uploadFile.get("folderName");
             String fileName = uploadFile.get("fileName");
             String fileData = uploadFile.get("fileData");
-            rmiService.uploadFileToNode(user, folderName, fileName, fileData);
-
+            //System.out.println("user: " + user + " folderName: " + folderName + " fileName: " + fileName + " fileData: " + fileData);
+            Map<String,String> result = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
+            System.out.println("result: " + result.values());
+            //DataBaseServerController.uploadFileBD(result);
 
 
             return ResponseEntity.status(200).build();
@@ -236,6 +241,7 @@ public class RMIServiceAdapterController {
         }
 
     }
+    
 
     public String getUserInfo(String authToken) {
         RestTemplate restTemplate = new RestTemplate();

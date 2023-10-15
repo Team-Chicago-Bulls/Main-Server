@@ -32,8 +32,8 @@ public class DataBaseServerController {
         try {
             // Configura RestTemplate
             RestTemplate restTemplate = new RestTemplate();
-            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file";
-
+            //String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file";
+            String url = "http://localhost:8000/api/file";
             // Crea un encabezado con el tipo de contenido
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -60,8 +60,8 @@ public class DataBaseServerController {
         try {
             // Configura RestTemplate
             RestTemplate restTemplate = new RestTemplate();
-            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/user";
-
+            //String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/user";
+            String url = "http://localhost:8000/api/user";
             // Crea un encabezado con el tipo de contenido
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
