@@ -79,15 +79,16 @@ public class RMIServiceAdapterController {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
 
 
-            String user = headers.get("authorization");
+            String user = getUserInfo(headers.get("authorization"));
+    
             //String user = uploadFile.get("user");
             String folderName = uploadFile.get("folderName");
             String fileName = uploadFile.get("fileName");
             String fileData = uploadFile.get("fileData");
             //System.out.println("user: " + user + " folderName: " + folderName + " fileName: " + fileName + " fileData: " + fileData);
             Map<String,String> result = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
-            System.out.println("result: " + result.values());
-            //DataBaseServerController.uploadFileBD(result);
+            
+            DataBaseServerController.uploadFileBD(result);
 
 
             return ResponseEntity.status(200).build();

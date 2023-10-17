@@ -52,13 +52,13 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     public String[] getNodos() {
         String[] nodos = new String[2];
         Random random = new Random();
-        String nodoPrincipal = "nodo" + String.valueOf(1 + random.nextInt(2));
-        String nodoCopia = "nodo" + String.valueOf(1 + random.nextInt(2));
+        String nodoPrincipal = "nodo" + String.valueOf(1 + random.nextInt(4));
+        String nodoCopia = "nodo" + String.valueOf(1 + random.nextInt(4));
 
-        do {
+        while (nodoPrincipal.equals(nodoCopia)) {
             nodoCopia = "nodo" + String.valueOf(1 + random.nextInt(4));
-        } while (nodoPrincipal.equals(nodoCopia));
-        
+        }
+
         nodos[0] = nodoPrincipal;
         nodos[1] = nodoCopia;
 
@@ -94,22 +94,10 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
         try {
             String[] nodos_numero =  getNodos();
 
-        
-
-            //System.out.println(nodos.get(nodos_numero[0]));
-            //System.out.println(nodos.get(nodos_numero[1]));
-
             registry = LocateRegistry.getRegistry(nodos.get(nodos_numero[0]), 1099);
             rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
 
-            //rmiService = (RMIServiceAdapter) Naming.lookup(nodos.get("nodo1"));
-            //registry = LocateRegistry.getRegistry(nodos.get(nodos_numero[0]), port1);
-            //rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
-
             Map<String,String> principal = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
-
-
-            //rmiService = (RMIServiceAdapter) Naming.lookup(nodos.get(nodos_numero[1]));
 
             registry = LocateRegistry.getRegistry(nodos.get(nodos_numero[1]), 1099);
             rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
