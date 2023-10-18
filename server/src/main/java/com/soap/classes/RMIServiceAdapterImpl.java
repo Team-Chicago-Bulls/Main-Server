@@ -152,6 +152,8 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
         ArrayList<String> directoryNames = new ArrayList<>();
 
         try {
+            registry = LocateRegistry.getRegistry(nodos.get("nodo1"), 1099);
+            rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
             directoryNames = rmiService.listDirectories(folderID);
         } catch (Exception e) {
             e.printStackTrace();
