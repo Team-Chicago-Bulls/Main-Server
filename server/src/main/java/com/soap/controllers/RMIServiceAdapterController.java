@@ -103,16 +103,12 @@ public class RMIServiceAdapterController {
     }
 
     @GetMapping("/listDirectories")
-    public ResponseEntity<List<String>> listDirectories(@RequestBody Map<String, String> listDirectories, @RequestHeader Map<String, String> headers) {
+    public ResponseEntity<List<String>> listDirectories(@RequestHeader Map<String, String> headers) {
         String user = getUserInfo(headers.get("authorization"));
-        DataBaseServerController.listDirectories(user);
-        String folderID = listDirectories.get("folderID");
         
-        
-
         try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
-            List<String> directories = rmiService.listDirectories(folderID);
+            List<String> directories = rmiService.listDirectories(user);
 
             if (directories != null) {
                 System.out.println("Directorios encontrados: " + directories.size());
