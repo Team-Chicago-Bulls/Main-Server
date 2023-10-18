@@ -67,7 +67,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     }
 
     @Override
-    public void createSubdirectory(String user, String parentFolderName, String subfolderName) throws RemoteException {
+    public boolean createSubdirectory(String user, String parentFolderName, String subfolderName) throws RemoteException {
         try {
             // Obtén la ruta completa del directorio principal del usuario
             //String parentFolderPath = getUserFolder(user) + "\\" + parentFolderName;
@@ -79,12 +79,13 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
            
            
             rmiService.createSubdirectory(user, parentFolderName,subfolderName);
-
+            return true;
 
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RemoteException("Error al crear el subdirectorio.", e);
+            return false;
+            //throw new RemoteException("Error al crear el subdirectorio.", e);
         }
     }
 
@@ -127,7 +128,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
 
 
     @Override
-    public void createDirectory(String userID, String path) throws RemoteException{
+    public boolean createDirectory(String userID, String path) throws RemoteException{
         try {
 
             Set<String> keys = nodos.keySet();
@@ -137,10 +138,12 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
                 rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
                 rmiService.createDirectory(userID, path);
             }
+            return true;
 
         } catch (Exception e) {
             //e.printStackTrace();
-            throw new RemoteException("Error al crear el directorio", e);
+            return false;
+            //throw new RemoteException("Error al crear el directorio", e);
         }
     }
 
@@ -171,22 +174,26 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
 
 
     @Override
-    public void moveFile(String fileID, String folderID, String newFolderID)throws RemoteException{
+    public boolean moveFile(String fileID, String folderID, String newFolderID)throws RemoteException{
         try {
             rmiService.moveFile(fileID, folderID, newFolderID);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RemoteException("Error al crear el directorio", e);
+            return false;
+            //throw new RemoteException("Error al crear el directorio", e);
         }
     }
 
     @Override
-    public void renameFile(String user, String currentFileName, String newFileName) throws RemoteException {
+    public boolean renameFile(String user, String currentFileName, String newFileName) throws RemoteException {
         try {
             rmiService.renameFile(user, currentFileName, newFileName);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RemoteException("Error al renombrar el archivo.", e);
+            return false;
+            //throw new RemoteException("Error al renombrar el archivo.", e);
         }
     }
 
@@ -205,12 +212,14 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
 
 
     @Override
-    public void deleteFile(String user, String fileName) throws RemoteException {
+    public boolean deleteFile(String user, String fileName) throws RemoteException {
         try {
             rmiService.deleteFile(user, fileName);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RemoteException("Error al eliminar el archivo", e);
+            return false;
+            //throw new RemoteException("Error al eliminar el archivo", e);
         }
     }
 

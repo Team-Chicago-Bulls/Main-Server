@@ -11,7 +11,7 @@ import java.util.Map;
 public interface RMIServiceAdapter extends Remote {
     Map<String,String> uploadFileToNode(String user, String folderName, String fileName, String base64Data) throws RemoteException;
 
-    void createDirectory(String user, String path) throws RemoteException;
+    boolean createDirectory(String user, String path) throws RemoteException;
 
     ArrayList<String> listDirectories(String folderID) throws RemoteException;
 
@@ -19,11 +19,11 @@ public interface RMIServiceAdapter extends Remote {
 
     File downloadFile(String user, String fileName) throws RemoteException;
 
-    void moveFile(String user, String fileName, String targetDirectory) throws RemoteException;
+    boolean moveFile(String user, String fileName, String targetDirectory) throws RemoteException;
 
-    void renameFile(String user, String currentFileName, String newFileName) throws RemoteException;
+    boolean renameFile(String user, String currentFileName, String newFileName) throws RemoteException;
 
-    void deleteFile(String user, String fileName) throws RemoteException;
+    boolean deleteFile(String user, String fileName) throws RemoteException;
 
-    void createSubdirectory(String user, String parentFolderName, String subfolderName) throws  RemoteException;
+    boolean createSubdirectory(String user, String parentFolderName, String subfolderName) throws  RemoteException;
 }
