@@ -22,7 +22,7 @@ import java.io.File;
 
 @Component
 public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMIServiceAdapter {
-    private static final String BASE_DIRECTORY = "D:\\distro_java\\test_rmi";
+   
     // Estructura para mapeo de usuarios a carpetas
     private Map<String, String> userToFolderMap = new HashMap<>();
     private Map<String, String> fileIDToUserMap = new HashMap<>();
@@ -41,7 +41,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
             nodos.put("nodo1", "10.152.164.230");
             nodos.put("nodo2", "10.152.164.231");
             nodos.put("nodo3", "10.152.164.232");
-            nodos.put("nodo4", "10.152.164.233");
+            //nodos.put("nodo4", "10.152.164.233");
 
         } catch (Exception e) {
             e.printStackTrace();

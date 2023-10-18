@@ -34,11 +34,11 @@ public class RMIServiceAdapterController {
 
 
     @PostMapping("/createDirectory")
-    public ResponseEntity<Map<String, Object>> createDirectory(@RequestBody Map<String, String> directorio)
+    public ResponseEntity<Map<String, Object>> createDirectory(@RequestBody Map<String, String> directorio, @RequestHeader Map<String, String> headers)
             throws RemoteException {
         try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
-            String user = directorio.get("user");
+            String user = getUserInfo(headers.get("authorization"));
             String path = directorio.get("path");
             rmiService.createDirectory(user, path);
 
@@ -53,11 +53,11 @@ public class RMIServiceAdapterController {
     }
 
     @PostMapping("/createSubDirectory")
-    public ResponseEntity<Map<String, Object>> createSubDirectory(@RequestBody Map<String, String> SubDirectory)
+    public ResponseEntity<Map<String, Object>> createSubDirectory(@RequestBody Map<String, String> SubDirectory, @RequestHeader Map<String, String> headers)
             throws RemoteException {
         try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
-            String user = SubDirectory.get("user");
+            String user = getUserInfo(headers.get("authorization"));
             String parentFolderName = SubDirectory.get("parentFolderName");
             String subfolderName = SubDirectory.get("subfolderName");
             rmiService.createSubdirectory(user, parentFolderName, subfolderName);
@@ -121,12 +121,12 @@ public class RMIServiceAdapterController {
     }
 
     @GetMapping("/downloadFile")
-    public ResponseEntity<InputStreamResource> downloadFile(@RequestBody Map<String, String> downloadFile)
+    public ResponseEntity<InputStreamResource> downloadFile(@RequestBody Map<String, String> downloadFile, @RequestHeader Map<String, String> headers)
             throws RemoteException {
         File file1 = null;
         try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
-            String user = downloadFile.get("user");
+            String user = getUserInfo(headers.get("authorization"));
             String fileName = downloadFile.get("fileName");
             file1 = rmiService.downloadFile(user, fileName);
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
