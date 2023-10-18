@@ -52,11 +52,11 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     public String[] getNodos() {
         String[] nodos = new String[2];
         Random random = new Random();
-        String nodoPrincipal = "nodo" + String.valueOf(1 + random.nextInt(4));
-        String nodoCopia = "nodo" + String.valueOf(1 + random.nextInt(4));
+        String nodoPrincipal = "nodo" + String.valueOf(1 + random.nextInt(this.nodos.size()));
+        String nodoCopia = "nodo" + String.valueOf(1 + random.nextInt(this.nodos.size()));
 
         while (nodoPrincipal.equals(nodoCopia)) {
-            nodoCopia = "nodo" + String.valueOf(1 + random.nextInt(4));
+            nodoCopia = "nodo" + String.valueOf(1 + random.nextInt(this.nodos.size()));
         }
 
         nodos[0] = nodoPrincipal;
