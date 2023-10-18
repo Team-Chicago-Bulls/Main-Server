@@ -101,8 +101,12 @@ public class RMIServiceAdapterController {
     }
 
     @GetMapping("/listDirectories")
-    public ResponseEntity<List<String>> listDirectories(@RequestBody Map<String, String> listDirectories) {
+    public ResponseEntity<List<String>> listDirectories(@RequestBody Map<String, String> listDirectories, @RequestHeader Map<String, String> headers) {
+        String user = getUserInfo(headers.get("authorization"));
+        DataBaseServerController.listDirectories(user);
         String folderID = listDirectories.get("folderID");
+        
+        
 
         try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();

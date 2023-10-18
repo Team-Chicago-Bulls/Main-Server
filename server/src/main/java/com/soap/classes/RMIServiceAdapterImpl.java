@@ -94,6 +94,8 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
         try {
             String[] nodos_numero =  getNodos();
 
+
+
             registry = LocateRegistry.getRegistry(nodos.get(nodos_numero[0]), 1099);
             rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
 
@@ -127,8 +129,14 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     @Override
     public void createDirectory(String userID, String path) throws RemoteException{
         try {
-            rmiService.createDirectory(userID, path);
 
+            Set<String> keys = nodos.keySet();
+
+            for(String key: keys){
+                registry = LocateRegistry.getRegistry(nodos.get(key), 1099);
+                rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
+                rmiService.createDirectory(userID, path);
+            }
 
         } catch (Exception e) {
             //e.printStackTrace();

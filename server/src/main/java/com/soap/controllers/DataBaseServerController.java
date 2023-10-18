@@ -35,7 +35,7 @@ public class DataBaseServerController {
             String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file";
 
             HttpHeaders headers = new HttpHeaders();
-            
+
             headers.setContentType(MediaType.APPLICATION_JSON);
 
         
@@ -46,6 +46,25 @@ public class DataBaseServerController {
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
             restTemplate.postForEntity(url, requestEntity, String.class);
+
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener el token: " + e.getMessage());
+        }
+    }
+
+
+    public static void listDirectories(String id) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file/list" + id;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+           System.out.println(response.getBody());
 
 
         } catch (Exception e) {
