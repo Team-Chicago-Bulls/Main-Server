@@ -88,9 +88,11 @@ public class RMIServiceAdapterController {
             //System.out.println("user: " + user + " folderName: " + folderName + " fileName: " + fileName + " fileData: " + fileData);
             Map<String,String> result = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
             
+            if (result.get("error").equals("true")) {
+                return ResponseEntity.status(400).build();
+            }
+
             DataBaseServerController.uploadFileBD(result);
-
-
             return ResponseEntity.status(200).build();
 
         } catch (Exception e) {
