@@ -128,19 +128,19 @@ public class RMIServiceAdapterController {
     public ResponseEntity<InputStreamResource> getFile(@PathVariable String id_file,
             @RequestHeader Map<String, String> headers)
             throws RemoteException, FileNotFoundException {
-    
+
+        String user = getUserInfo(headers.get("authorization"));
+        // String fileName = downloadFile.get("fileName");
+        Map<String, Object> file = DataBaseServerController.getFile(id_file, user);
+
         try {
 
-            String user = getUserInfo(headers.get("authorization"));
-            // String fileName = downloadFile.get("fileName");
-            JsonNode file = DataBaseServerController.getFile(id_file, user);
-            System.out.print(file.get(0).get("route").asText());
-           
-            
+         
+
             if (file != null) {
-                
-                String path = file.get(0).get("route").asText() + "/" + file.get(0).get("nombre").asText();
-                String nodo = file.get(0).get("nodo").asText();
+
+                String path = file.get("route").toString() + "/" + file.get("nombre").toString();
+                String nodo = file.get("nodo").toString();
 
                 RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
                 File file1 = rmiService.downloadFile(user, path, nodo);
@@ -159,12 +159,10 @@ public class RMIServiceAdapterController {
             }
         } catch (RemoteException e) {
 
-            String user = getUserInfo(headers.get("authorization"));
-            JsonNode file = DataBaseServerController.getFile(id_file, user);
+   
 
-
-            String path = file.get(0).get("route_backup").asText() + "/" + file.get(0).get("nombre").asText();
-            String nodo = file.get(0).get("nodo_backup").asText();
+            String path = file.get("route_backup").toString() + "/" + file.get("nombre").toString();
+            String nodo = file.get("nodo_backup").toString();
 
             RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
             File file1 = rmiService.downloadFile(user, path, nodo);

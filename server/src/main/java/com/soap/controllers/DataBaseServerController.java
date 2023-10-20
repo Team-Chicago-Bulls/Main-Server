@@ -49,7 +49,7 @@ public class DataBaseServerController {
         }
     }
 
-    public static JsonNode getFile(String id_file, String id_user) {
+    public static Map<String,Object> getFile(String id_file, String id_user) {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
@@ -77,8 +77,24 @@ public class DataBaseServerController {
                 return null;
             }
 
+
+            Map<String,Object> resultado = new HashMap<String,Object>();
+
             JsonNode list = response.get("msg");
-            return list;
+
+          
+            resultado.put("id", list.get(0).get("id").asText());
+            resultado.put("name", list.get(0).get("name").asText());
+            resultado.put("size", list.get(0).get("size").asText());
+            resultado.put("nodo", list.get(0).get("nodo").asText());
+            resultado.put("route", list.get(0).get("route").asText());
+            resultado.put("nodo_backup", list.get(0).get("nodo_backup").asText());
+            resultado.put("route_backup", list.get(0).get("route_backup").asText());
+            
+
+
+
+            return resultado;
 
         } catch (Exception e) {
             System.err.println("Error al obtener el token: " + e.getMessage());
