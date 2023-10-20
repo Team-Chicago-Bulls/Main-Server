@@ -38,10 +38,10 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
             //Registry registry = LocateRegistry.getRegistry("localhost", 1099);
             //rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
         
-            nodos.put("nodo1", "10.152.164.230");
-            nodos.put("nodo2", "10.152.164.231");
-            nodos.put("nodo3", "10.152.164.232");
-            //nodos.put("nodo4", "10.152.164.233");
+            nodos.put("nodo1", "10.154.12.112");
+            nodos.put("nodo2", "10.154.12.116");
+            nodos.put("nodo3", "10.154.12.115");
+            nodos.put("nodo4", "10.154.12.117");
 
         } catch (Exception e) {
             e.printStackTrace();
