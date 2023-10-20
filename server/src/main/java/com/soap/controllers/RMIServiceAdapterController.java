@@ -152,7 +152,7 @@ public class RMIServiceAdapterController {
                             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" +
                                     file.get("name").toString())
                             .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                            .contentLength(size)
+                           
                             .body(file1);
 
                 } else {
