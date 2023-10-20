@@ -53,6 +53,32 @@ public class DataBaseServerController {
         }
     }
 
+    public static String getFile(String id_file, String id_user) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file?user_id=" + id_user + "&file_id=" + id_file;
+
+
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+
+            String response = responseEntity.getBody();
+
+            System.out.println(response);
+
+            return response;
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener el token: " + e.getMessage());
+            return null;
+        }
+    }
     
     public static void registerUserBd(String id) {
         try {

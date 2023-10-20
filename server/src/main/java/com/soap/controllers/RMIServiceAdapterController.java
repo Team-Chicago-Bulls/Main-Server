@@ -123,15 +123,41 @@ public class RMIServiceAdapterController {
         }
     }
 
-    @GetMapping("/downloadFile")
-    public ResponseEntity<InputStreamResource> downloadFile(@RequestBody Map<String, String> downloadFile, @RequestHeader Map<String, String> headers)
+
+    @GetMapping("/getFile/{id_file}")
+    public ResponseEntity<Map<String, String>> getFile(@PathVariable String id_file, @RequestHeader Map<String, String> headers)
+            throws RemoteException {
+        try {
+           
+            String user = getUserInfo(headers.get("authorization"));
+            //String fileName = downloadFile.get("fileName");
+            String file = DataBaseServerController.getFile(id_file, user);
+
+            if (file != null) {
+                //System.out.println("Archivo encontrado: " + file.get("nombre"));
+                return ResponseEntity.status(200).build();
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return ResponseEntity.status(500).build();
+
+    }
+
+    @GetMapping("/downloadFile/{id_file}")
+    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String id_file, @RequestHeader Map<String, String> headers)
             throws RemoteException {
         File file1 = null;
         try {
             RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
             String user = getUserInfo(headers.get("authorization"));
-            String fileName = downloadFile.get("fileName");
-            file1 = rmiService.downloadFile(user, fileName);
+            //String fileName = downloadFile.get("fileName");
+            file1 = rmiService.downloadFile(user, id_file);
+
+
+
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file1.getName())
