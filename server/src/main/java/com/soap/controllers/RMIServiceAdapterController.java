@@ -7,7 +7,6 @@ import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
-import org.springframework.http.ResponseEntity;
 
 import com.soap.classes.RMIServiceAdapterImpl;
 import org.springframework.web.bind.annotation.*;
@@ -91,6 +90,8 @@ public class RMIServiceAdapterController {
             if (result.get("error").equals("true")) {
                 return ResponseEntity.status(400).build();
             }
+
+            result.put("id_user", user);
 
             DataBaseServerController.uploadFileBD(result);
             return ResponseEntity.status(200).build();
