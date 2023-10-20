@@ -136,7 +136,7 @@ public class RMIServiceAdapterController {
             JsonNode file = DataBaseServerController.getFile(id_file, user);
             System.out.print(file);
 
-            if (file != null) {
+            if (file == null) {
 
                 String path = file.get(0).get("route").asText() + "/" + file.get(0).get("nombre").asText();
                 String nodo = file.get(0).get("nodo").asText();
