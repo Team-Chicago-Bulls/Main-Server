@@ -138,7 +138,8 @@ public class RMIServiceAdapterController {
          
 
             if (file != null) {
-
+                System.out.print(file);
+                
                 String path = file.get("route").toString() + "/" + file.get("nombre").toString();
                 String nodo = file.get("nodo").toString();
 
