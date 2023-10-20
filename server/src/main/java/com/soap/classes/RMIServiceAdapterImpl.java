@@ -21,7 +21,7 @@ import java.io.File;
 
 
 @Component
-public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMIServiceAdapter {
+public class RMIServiceAdapterImpl {
    
     // Estructura para mapeo de usuarios a carpetas
     private Map<String, String> userToFolderMap = new HashMap<>();
@@ -66,7 +66,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
         return nodos;
     }
 
-    @Override
+    
     public boolean createSubdirectory(String user, String parentFolderName, String subfolderName) throws RemoteException {
         try {
             // Obtén la ruta completa del directorio principal del usuario
@@ -90,7 +90,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     }
 
 
-    @Override
+    
     public Map<String,String> uploadFileToNode(String user, String folderName, String fileName, String fileData) throws RemoteException {
         try {
             String[] nodos_numero =  getNodos();
@@ -127,7 +127,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     }
 
 
-    @Override
+    
     public boolean createDirectory(String userID, String path) throws RemoteException{
         try {
 
@@ -147,7 +147,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
         }
     }
 
-    @Override
+    
     public ArrayList<String> listDirectories(String folderID) throws RemoteException{
         ArrayList<String> directoryNames = new ArrayList<>();
 
@@ -161,11 +161,12 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
         }
         return directoryNames;
     }
-
-    @Override
-    public File downloadFile(String user, String fileName) throws RemoteException {
+    
+    public File downloadFile(String user, String fileName, String node) throws RemoteException {
         File file1 = null;
         try {
+            registry = LocateRegistry.getRegistry(nodos.get(node), 1099);
+            rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
             file1 = rmiService.downloadFile(user, fileName);
         } catch (Exception e) {
             e.printStackTrace();
@@ -175,7 +176,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     }
 
 
-    @Override
+    
     public boolean moveFile(String fileID, String folderID, String newFolderID)throws RemoteException{
         try {
             rmiService.moveFile(fileID, folderID, newFolderID);
@@ -187,7 +188,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
         }
     }
 
-    @Override
+    
     public boolean renameFile(String user, String currentFileName, String newFileName) throws RemoteException {
         try {
             rmiService.renameFile(user, currentFileName, newFileName);
@@ -200,7 +201,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     }
 
 
-    @Override
+    
     public ArrayList<String> listFilesInDirectory(String user, String folderName) throws RemoteException {
         ArrayList<String> fileNames = new ArrayList<>();
         try {
@@ -213,7 +214,7 @@ public class RMIServiceAdapterImpl extends UnicastRemoteObject implements RMISer
     }
 
 
-    @Override
+    
     public boolean deleteFile(String user, String fileName) throws RemoteException {
         try {
             rmiService.deleteFile(user, fileName);

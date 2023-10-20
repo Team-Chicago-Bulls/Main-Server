@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import interfaces.RMIServiceAdapter;
+import com.soap.classes.RMIServiceAdapterImpl;
 import com.soap.interfaces.ISOAPFileService;
 
 @WebService(endpointInterface = "com.soap.interfaces.ISOAPFileService")
@@ -54,7 +54,7 @@ public class SOAPFileService implements ISOAPFileService {
 		String fullPath = BASE_DIRECTORY + userFolder + "/" + path;
 
 			try {
-				RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+				RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
 				rmiAdapter.createDirectory(userFolder, path);
 			} catch (RemoteException e) {
 				e.printStackTrace();
@@ -65,7 +65,7 @@ public class SOAPFileService implements ISOAPFileService {
 	@Override
 	public void createSubdirectory(String user, String parentFolderName, String subfolderName) {
 		try {
-			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
 
 			// Obtén la ruta completa del directorio principal del usuario
 			String parentFolderPath = user + "/" + parentFolderName;
@@ -88,7 +88,7 @@ public class SOAPFileService implements ISOAPFileService {
 		ArrayList<String> directoryNames = new ArrayList<>();
 
 		try {
-			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
 			directoryNames = rmiAdapter.listDirectories(folderID);
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -102,7 +102,7 @@ public class SOAPFileService implements ISOAPFileService {
 	@Override
 	public void uploadFile(String user, String folderName, String fileName, String fileData) {
 		try {
-			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
 			rmiAdapter.uploadFileToNode(user, folderName, fileName, fileData);
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -118,8 +118,8 @@ public class SOAPFileService implements ISOAPFileService {
 		File file1 = null;
 
 		try {
-			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
-			file1 = rmiAdapter.downloadFile(user, fileName);
+			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
+			//file1 = rmiAdapter.downloadFile(user, fileName);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			System.err.println("Error al cargar una copia del archivo en el nodo RMI.");
@@ -131,7 +131,7 @@ public class SOAPFileService implements ISOAPFileService {
 	@Override
 	public void moveFile(String fileID, String folderID, String newFolderID) {
 		try {
-			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
 			rmiAdapter.moveFile(fileID, folderID, newFolderID);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -142,7 +142,7 @@ public class SOAPFileService implements ISOAPFileService {
 	@Override
 	public void renameFile(String user, String currentFileName, String newFileName) {
 		try {
-			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
 			rmiAdapter.renameFile(user, currentFileName, newFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -155,7 +155,7 @@ public class SOAPFileService implements ISOAPFileService {
 	public ArrayList<String> listFilesInDirectory(String user, String folderName) {
 		ArrayList<String> fileNames = new ArrayList<>();
 		try {
-			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
 			fileNames = rmiAdapter.listFilesInDirectory(user, folderName);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -168,7 +168,7 @@ public class SOAPFileService implements ISOAPFileService {
 	@Override
 	public void deleteFile(String user, String fileName) {
 		try {
-			RMIServiceAdapter rmiAdapter = new RMIServiceAdapterImpl();
+			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
 			rmiAdapter.deleteFile(user, fileName);
 		} catch (Exception e) {
 			e.printStackTrace();

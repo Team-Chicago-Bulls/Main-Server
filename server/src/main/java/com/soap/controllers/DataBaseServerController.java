@@ -1,6 +1,7 @@
 package com.soap.controllers;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import interfaces.RMIServiceAdapter;
 import org.apache.coyote.Response;
@@ -53,7 +54,7 @@ public class DataBaseServerController {
         }
     }
 
-    public static String getFile(String id_file, String id_user) {
+    public static JsonNode getFile(String id_file, String id_user) {
         try {
             RestTemplate restTemplate = new RestTemplate();
             
@@ -66,13 +67,16 @@ public class DataBaseServerController {
 
             HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, JsonNode.class);
 
-            String response = responseEntity.getBody();
-
-            System.out.println(response);
-
-            return response;
+            JsonNode response = responseEntity.getBody();
+         
+            if (response == null || response.get("error").asBoolean() == true) {
+                return null;
+            }
+            
+            JsonNode list = response.get("msg");
+            return list;
 
         } catch (Exception e) {
             System.err.println("Error al obtener el token: " + e.getMessage());

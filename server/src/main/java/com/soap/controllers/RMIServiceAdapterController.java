@@ -2,7 +2,7 @@ package com.soap.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import interfaces.RMIServiceAdapter;
+
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.security.MessageDigest;
@@ -29,14 +30,12 @@ public class RMIServiceAdapterController {
     public String authToken;
     public String UID;
 
-    
-
-
     @PostMapping("/createDirectory")
-    public ResponseEntity<Map<String, Object>> createDirectory(@RequestBody Map<String, String> directorio, @RequestHeader Map<String, String> headers)
+    public ResponseEntity<Map<String, Object>> createDirectory(@RequestBody Map<String, String> directorio,
+            @RequestHeader Map<String, String> headers)
             throws RemoteException {
         try {
-            RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
+            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
             String user = getUserInfo(headers.get("authorization"));
             String path = directorio.get("path");
             rmiService.createDirectory(user, path);
@@ -52,10 +51,11 @@ public class RMIServiceAdapterController {
     }
 
     @PostMapping("/createSubDirectory")
-    public ResponseEntity<Map<String, Object>> createSubDirectory(@RequestBody Map<String, String> SubDirectory, @RequestHeader Map<String, String> headers)
+    public ResponseEntity<Map<String, Object>> createSubDirectory(@RequestBody Map<String, String> SubDirectory,
+            @RequestHeader Map<String, String> headers)
             throws RemoteException {
         try {
-            RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
+            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
             String user = getUserInfo(headers.get("authorization"));
             String parentFolderName = SubDirectory.get("parentFolderName");
             String subfolderName = SubDirectory.get("subfolderName");
@@ -72,21 +72,22 @@ public class RMIServiceAdapterController {
     }
 
     @PostMapping("/uploadFileToNode")
-    public ResponseEntity<Map<String, Object>> uploadFileToNode(@RequestBody Map<String, String> uploadFile, @RequestHeader Map<String, String> headers)
+    public ResponseEntity<Map<String, Object>> uploadFileToNode(@RequestBody Map<String, String> uploadFile,
+            @RequestHeader Map<String, String> headers)
             throws RemoteException {
         try {
-            RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
-
+            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
 
             String user = getUserInfo(headers.get("authorization"));
-    
-            //String user = uploadFile.get("user");
+
+            // String user = uploadFile.get("user");
             String folderName = uploadFile.get("folderName");
             String fileName = uploadFile.get("fileName");
             String fileData = uploadFile.get("fileData");
-            //System.out.println("user: " + user + " folderName: " + folderName + " fileName: " + fileName + " fileData: " + fileData);
-            Map<String,String> result = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
-            
+            // System.out.println("user: " + user + " folderName: " + folderName + "
+            // fileName: " + fileName + " fileData: " + fileData);
+            Map<String, String> result = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
+
             if (result.get("error").equals("true")) {
                 return ResponseEntity.status(400).build();
             }
@@ -106,9 +107,9 @@ public class RMIServiceAdapterController {
     @GetMapping("/listDirectories")
     public ResponseEntity<List<String>> listDirectories(@RequestHeader Map<String, String> headers) {
         String user = getUserInfo(headers.get("authorization"));
-        
+
         try {
-            RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
+            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
             List<String> directories = rmiService.listDirectories(user);
 
             if (directories != null) {
@@ -123,40 +124,74 @@ public class RMIServiceAdapterController {
         }
     }
 
-
     @GetMapping("/getFile/{id_file}")
-    public ResponseEntity<Map<String, String>> getFile(@PathVariable String id_file, @RequestHeader Map<String, String> headers)
-            throws RemoteException {
+    public ResponseEntity<InputStreamResource> getFile(@PathVariable String id_file,
+            @RequestHeader Map<String, String> headers)
+            throws RemoteException, FileNotFoundException {
+    
         try {
-           
+
             String user = getUserInfo(headers.get("authorization"));
-            //String fileName = downloadFile.get("fileName");
-            String file = DataBaseServerController.getFile(id_file, user);
+            // String fileName = downloadFile.get("fileName");
+            JsonNode file = DataBaseServerController.getFile(id_file, user);
 
             if (file != null) {
-                //System.out.println("Archivo encontrado: " + file.get("nombre"));
-                return ResponseEntity.status(200).build();
+
+                String path = file.get(0).get("route").asText() + "/" + file.get(0).get("nombre").asText();
+                String nodo = file.get(0).get("nodo").asText();
+
+                RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
+                File file1 = rmiService.downloadFile(user, path, nodo);
+
+                InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file1.getName())
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .contentLength(file1.length())
+                        .body(resource);
+
+                // System.out.println("Archivo encontrado: " + file.get("nombre"));
+                // return ResponseEntity.status(200).build();
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+        } catch (RemoteException e) {
+
+            String user = getUserInfo(headers.get("authorization"));
+            JsonNode file = DataBaseServerController.getFile(id_file, user);
+
+
+            String path = file.get(0).get("route_backup").asText() + "/" + file.get(0).get("nombre").asText();
+            String nodo = file.get(0).get("nodo_backup").asText();
+
+            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
+            File file1 = rmiService.downloadFile(user, path, nodo);
+
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file1.getName())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .contentLength(file1.length())
+                    .body(resource);
+
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println(e.getMessage());
+            return ResponseEntity.status(500).build();
         }
-        return ResponseEntity.status(500).build();
 
     }
 
     @GetMapping("/downloadFile/{id_file}")
-    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String id_file, @RequestHeader Map<String, String> headers)
+    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String id_file,
+            @RequestHeader Map<String, String> headers)
             throws RemoteException {
         File file1 = null;
         try {
-            RMIServiceAdapter rmiService = new RMIServiceAdapterImpl();
+            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
             String user = getUserInfo(headers.get("authorization"));
-            //String fileName = downloadFile.get("fileName");
-            file1 = rmiService.downloadFile(user, id_file);
-
-
+            // String fileName = downloadFile.get("fileName");
+            file1 = rmiService.downloadFile(user, id_file, "a");
 
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
             return ResponseEntity.ok()
@@ -271,7 +306,6 @@ public class RMIServiceAdapterController {
         }
 
     }
-    
 
     public String getUserInfo(String authToken) {
         RestTemplate restTemplate = new RestTemplate();
@@ -285,7 +319,7 @@ public class RMIServiceAdapterController {
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode id = objectMapper.readTree(user);
-                
+
                 UID = id.get("id").asText();
                 return id.get("id").asText();
 
