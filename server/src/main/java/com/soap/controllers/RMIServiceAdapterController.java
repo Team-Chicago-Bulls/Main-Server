@@ -135,7 +135,7 @@ public class RMIServiceAdapterController {
             // String fileName = downloadFile.get("fileName");
             JsonNode file = DataBaseServerController.getFile(id_file, user);
             System.out.print(file.get(0).get("route").asText());
-            Thread.sleep(1000);
+           
             
             if (file != null) {
                 
