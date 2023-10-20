@@ -162,8 +162,8 @@ public class RMIServiceAdapterImpl {
         return directoryNames;
     }
     
-    public File downloadFile(String user, String fileName, String node) throws RemoteException {
-        File file1 = null;
+    public byte[] downloadFile(String user, String fileName, String node) throws RemoteException {
+        byte[] file1 = null;
         try {
             registry = LocateRegistry.getRegistry(nodos.get(node), 1099);
             rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");

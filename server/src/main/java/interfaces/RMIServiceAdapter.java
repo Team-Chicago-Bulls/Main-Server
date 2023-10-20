@@ -17,7 +17,7 @@ public interface RMIServiceAdapter extends Remote {
 
     ArrayList<String> listFilesInDirectory(String user, String folderName) throws RemoteException;
 
-    File downloadFile(String user, String fileName) throws RemoteException;
+    byte[] downloadFile(String user, String fileName) throws RemoteException;
 
     boolean moveFile(String user, String fileName, String targetDirectory) throws RemoteException;
 

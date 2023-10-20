@@ -127,7 +127,7 @@ public class RMIServiceAdapterController {
     }
 
     @GetMapping("/getFile/{id_file}")
-    public ResponseEntity<InputStreamResource> getFile(@PathVariable String id_file,
+    public ResponseEntity<byte[]> getFile(@PathVariable String id_file,
             @RequestHeader Map<String, String> headers)
             throws RemoteException, FileNotFoundException {
 
@@ -140,20 +140,20 @@ public class RMIServiceAdapterController {
                 if (file != null) {
                     String path = file.get("route").toString() + "/" + file.get("name").toString();
                     String nodo = file.get("nodo").toString();
-                 
+                    long size = Integer.parseInt(file.get("size").toString());
 
                     RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
 
-                    File file1 = rmiService.downloadFile(user, path, nodo);
+                    byte[] file1 = rmiService.downloadFile(user, path, nodo);
 
-                    InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
+                    //InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
 
                     return ResponseEntity.ok()
                             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" +
-                                    file1.getName())
+                                    file.get("name").toString())
                             .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                            .contentLength(file1.length())
-                            .body(resource);
+                            .contentLength(size)
+                            .body(file1);
 
                 } else {
                     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -162,16 +162,19 @@ public class RMIServiceAdapterController {
             } catch (RemoteException e) {
                 String path = file.get("route_backup").toString() + "/" + file.get("nombre").toString();
                 String nodo = file.get("nodo_backup").toString();
+                long size = Integer.parseInt(file.get("size").toString());
 
                 RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
-                File file1 = rmiService.downloadFile(user, path, nodo);
+                byte[] file1 = rmiService.downloadFile(user, path, nodo);
 
-                InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file1.getName())
-                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                        .contentLength(file1.length())
-                        .body(resource);
+                    //InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
+
+                    return ResponseEntity.ok()
+                            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" +
+                                    file.get("name").toString())
+                            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                            .contentLength(size)
+                            .body(file1);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -191,14 +194,14 @@ public class RMIServiceAdapterController {
             RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
             String user = getUserInfo(headers.get("authorization"));
             // String fileName = downloadFile.get("fileName");
-            file1 = rmiService.downloadFile(user, id_file, "a");
-
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
+           //file1 = rmiService.downloadFile(user, id_file, "a");
+            return ResponseEntity.status(500).build();
+            /*InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file1.getName())
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .contentLength(file1.length())
-                    .body(resource);
+                    .body(resource);*/
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
