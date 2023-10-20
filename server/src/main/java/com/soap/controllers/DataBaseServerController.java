@@ -27,7 +27,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class DataBaseServerController {
 
-    public static void uploadFileBD(Map<String, String> resultado) {
+    public DataBaseServerController() {
+
+    }
+
+    public void uploadFileBD(Map<String, String> resultado) {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
@@ -49,7 +53,7 @@ public class DataBaseServerController {
         }
     }
 
-    public static Map<String,Object> getFile(String id_file, String id_user) {
+    public Map<String, Object> getFile(String id_file, String id_user) {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
@@ -60,41 +64,37 @@ public class DataBaseServerController {
 
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-
-            CompletableFuture<ResponseEntity<JsonNode>> future = CompletableFuture.supplyAsync(() -> {
-                return restTemplate.exchange(url, HttpMethod.GET, requestEntity, JsonNode.class);
-            });
-
-            
-            ResponseEntity<JsonNode> responseEntity = future.get(); // Espera a que se complete la operación asíncrona
-
-            //ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, JsonNode.class);
-
-            JsonNode response = responseEntity.getBody();
-
-            if (response == null || response.get("error").asBoolean() == true) {
-                return null;
-            }
-
-
-            Map<String,Object> resultado = new HashMap<String,Object>();
-
-            JsonNode list = response.get("msg");
-
-          
-            resultado.put("id", list.get(0).get("id").asText());
-            resultado.put("name", list.get(0).get("name").asText());
-            resultado.put("size", list.get(0).get("size").asText());
-            resultado.put("nodo", list.get(0).get("nodo").asText());
-            resultado.put("route", list.get(0).get("route").asText());
-            resultado.put("nodo_backup", list.get(0).get("nodo_backup").asText());
-            resultado.put("route_backup", list.get(0).get("route_backup").asText());
             
 
-
-
-            return resultado;
+            
+              ResponseEntity<JsonNode> response = restTemplate.getForEntity(url,
+              JsonNode.class, headers);
+              
+              JsonNode body = response.getBody();
+              
+              if (response == null || body.get("error").asBoolean() == true) {
+              return null;
+              }
+              
+              
+              Map<String,Object> resultado = new HashMap<String,Object>();
+              
+              JsonNode list = body.get("msg");
+              
+              
+              resultado.put("id", list.get(0).get("id").asText());
+              resultado.put("name", list.get(0).get("name").asText());
+              resultado.put("size", list.get(0).get("size").asText());
+              resultado.put("nodo", list.get(0).get("nodo").asText());
+              resultado.put("route", list.get(0).get("route").asText());
+              resultado.put("nodo_backup", list.get(0).get("nodo_backup").asText());
+              resultado.put("route_backup", list.get(0).get("route_backup").asText());
+              
+              
+              
+              
+              return resultado;
+             
 
         } catch (Exception e) {
             System.err.println("Error al obtener el token: " + e.getMessage());
@@ -102,7 +102,7 @@ public class DataBaseServerController {
         }
     }
 
-    public static void registerUserBd(String id) {
+    public void registerUserBd(String id) {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
