@@ -83,7 +83,7 @@ public class RMIServiceAdapterController {
             String id_file = renameFile.get("file_id");
             String newFileName = renameFile.get("newFileName");
             RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
-
+            
             Map<String, Object> file = dataBase.getFile(id_file, user);
 
             synchronized(file) {
