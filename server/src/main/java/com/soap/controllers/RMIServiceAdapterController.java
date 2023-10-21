@@ -146,6 +146,7 @@ public class RMIServiceAdapterController {
 
     }
 
+
     @GetMapping("/listFiles")
     public ResponseEntity<List<Map<String, Object>>> listFiles(@RequestHeader Map<String, String> headers) {
         String user = getUserInfo(headers.get("authorization"));
@@ -166,11 +167,38 @@ public class RMIServiceAdapterController {
                 }
 
             }
+            if (files != null) {
+                System.out.println("Archivos encontrados: " + files.size());
+                return new ResponseEntity<>(lista, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al listar archivos: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
+    @GetMapping("/listFiles/{carpeta}")
+    public ResponseEntity<List<Map<String, Object>>> listFileDirectory(@PathVariable String carpeta, @RequestHeader Map<String, String> headers) {
+        String user = getUserInfo(headers.get("authorization"));
+
+        try {
             
+            List<Map<String,Object>> files = dataBase.getFilesList(user);
+            List<Map<String, Object>> lista = new ArrayList<Map<String, Object>>();
 
+            for (Map<String,Object> map : files) {
+                String[] a = map.get("route").toString().split("/home/distro/nodo/" + user + "");
+                Map<String, Object> file = new HashMap<String, Object>();
+                if (a.length >= 0 ) {
+                    file.put("size", map.get("size").toString());
+                    file.put("name", map.get("name").toString());
+                    file.put("id", map.get("id").toString());
+                    lista.add(file);
+                }
 
-
+            }
             if (files != null) {
                 System.out.println("Archivos encontrados: " + files.size());
                 return new ResponseEntity<>(lista, HttpStatus.OK);
