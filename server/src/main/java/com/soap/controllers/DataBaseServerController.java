@@ -92,6 +92,53 @@ public class DataBaseServerController {
         }
     }
 
+    public List<Map<String,Object>> getFilesList(String id_user) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co//api/file/list?id=" + id_user;
+
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            ResponseEntity<JsonNode> response = restTemplate.getForEntity(url,
+                    JsonNode.class, headers);
+
+            JsonNode body = response.getBody();
+
+            if (response == null || body.get("error").asBoolean() == true) {
+                return null;
+            }
+
+            Map<String, Object> resultado = new HashMap<String, Object>();
+
+            JsonNode list = body.get("msg");
+
+            List<Map<String, Object>> lista = new ArrayList<Map<String, Object>>();
+
+            for (int i = 0; i < list.size(); i++) {
+                Map<String, Object> file = new HashMap<String, Object>();
+                file.put("id", list.get(i).get("id").asText());
+                file.put("name", list.get(i).get("name").asText());
+                file.put("size", list.get(i).get("size").asText());
+                file.put("nodo", list.get(i).get("nodo").asText());
+                file.put("route", list.get(i).get("route").asText());
+                file.put("nodo_backup", list.get(i).get("nodo_backup").asText());
+                file.put("route_backup", list.get(i).get("route_backup").asText());
+                lista.add(file);
+            }
+
+            //resultado.put("files", lista);
+
+            return lista;
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener el token: " + e.getMessage());
+            return null;
+        }
+    }
+
 
     public Map<String, Object> getFile(String id_file, String id_user) {
         try {
