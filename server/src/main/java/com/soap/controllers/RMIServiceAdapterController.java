@@ -79,10 +79,15 @@ public class RMIServiceAdapterController {
             throws RemoteException {
         try {
 
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                System.out.println(entry.getKey() + ":" + entry.getValue());
+            }
+
             String user = getUserInfo(headers.get("authorization"));
             String id_file = renameFile.get("file_id");
             String newFileName = renameFile.get("newFileName");
             RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
+            
             
             Map<String, Object> file = dataBase.getFile(id_file, user);
 

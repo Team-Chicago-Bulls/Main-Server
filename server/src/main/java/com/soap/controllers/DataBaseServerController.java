@@ -74,7 +74,7 @@ public class DataBaseServerController {
 
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-
+            
             restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, String.class);
 
 
