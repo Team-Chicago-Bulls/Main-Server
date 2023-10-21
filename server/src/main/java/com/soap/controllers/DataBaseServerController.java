@@ -74,9 +74,11 @@ public class DataBaseServerController {
 
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-            JsonNode response = restTemplate.patchForObject(url, requestEntity, JsonNode.class);
+            String response = restTemplate.patchForObject(url, requestEntity, String.class);
 
-            if (response.get("error").asBoolean() == true) {
+            JsonNode jsonNode = objectMapper.readTree(response);
+
+            if (jsonNode.get("error").asBoolean() == true) {
                 System.out.println("Error al renombrar el archivo");
                 
             } else {
