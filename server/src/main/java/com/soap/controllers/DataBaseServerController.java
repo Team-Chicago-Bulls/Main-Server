@@ -53,6 +53,49 @@ public class DataBaseServerController {
         }
     }
 
+    public void renameFileBD(String nombre, String file_id, String user_id) {
+       
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file/name";
+
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, String> body = new HashMap<>();
+            body.put("name", nombre);
+            body.put("user_id", user_id);
+            body.put("file_id", file_id);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(body);
+
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+
+            ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, JsonNode.class);
+
+            JsonNode bodyResponse = response.getBody();
+
+            if (bodyResponse.get("error").asBoolean() == true) {
+                System.out.println("Error al renombrar el archivo");
+                
+            } else {
+                System.out.println("Archivo renombrado correctamente");
+            }
+
+
+
+        } catch (Exception e) {
+            System.err.println("Error al renombrar el archivo: " + e.getMessage());
+            
+        }
+
+        
+
+    }
+
     public Map<String, Object> getFile(String id_file, String id_user) {
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -63,8 +106,6 @@ public class DataBaseServerController {
             HttpHeaders headers = new HttpHeaders();
 
             headers.setContentType(MediaType.APPLICATION_JSON);
-
-            
 
             
               ResponseEntity<JsonNode> response = restTemplate.getForEntity(url,
@@ -93,7 +134,7 @@ public class DataBaseServerController {
               
               
               
-              return resultado;
+            return resultado;
              
 
         } catch (Exception e) {

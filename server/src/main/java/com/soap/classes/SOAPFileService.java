@@ -143,7 +143,7 @@ public class SOAPFileService implements ISOAPFileService {
 	public void renameFile(String user, String currentFileName, String newFileName) {
 		try {
 			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
-			rmiAdapter.renameFile(user, currentFileName, newFileName);
+			rmiAdapter.renameFile("nodo1",user, currentFileName, newFileName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Error inesperado al renombrar el archivo.");

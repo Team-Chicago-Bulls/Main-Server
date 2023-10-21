@@ -176,9 +176,12 @@ public class RMIServiceAdapterImpl {
     }
 
 
+
+
     
     public boolean moveFile(String fileID, String folderID, String newFolderID)throws RemoteException{
         try {
+            
             rmiService.moveFile(fileID, folderID, newFolderID);
             return true;
         } catch (Exception e) {
@@ -189,9 +192,11 @@ public class RMIServiceAdapterImpl {
     }
 
     
-    public boolean renameFile(String user, String currentFileName, String newFileName) throws RemoteException {
+    public boolean renameFile(String nodo, String path, String currentFileName, String newFileName) throws RemoteException {
         try {
-            rmiService.renameFile(user, currentFileName, newFileName);
+            registry = LocateRegistry.getRegistry(nodos.get(nodo), 1099);
+            rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
+            rmiService.renameFile(path, currentFileName, newFileName);
             return true;
         } catch (Exception e) {
             e.printStackTrace();

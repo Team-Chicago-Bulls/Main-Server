@@ -73,6 +73,45 @@ public class RMIServiceAdapterController {
 
     }
 
+    @PatchMapping("/renameFile")
+    public ResponseEntity<Map<String, Object>> renameFile(@RequestBody Map<String, String> renameFile,
+            @RequestHeader Map<String, String> headers)
+            throws RemoteException {
+        try {
+
+            String user = getUserInfo(headers.get("authorization"));
+            String id_file = renameFile.get("file_id");
+            String newFileName = renameFile.get("newFileName");
+            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
+
+            Map<String, Object> file = dataBase.getFile(id_file, user);
+
+            synchronized(file) {
+                file.get("nodo").toString();
+                file.get("route").toString();
+                file.get("name").toString();
+
+                rmiService.renameFile(file.get("nodo").toString(), file.get("route").toString(),
+                        file.get("name").toString(), newFileName);
+
+                rmiService.renameFile(file.get("nodo_backup").toString(), file.get("route_backup").toString(),
+                        file.get("name").toString(), newFileName);
+
+                dataBase.renameFileBD(newFileName,id_file,user);
+
+            }
+
+            
+            return ResponseEntity.status(200).build();
+        } catch (Exception e) {
+
+            System.out.println(e.getMessage());
+
+        }
+        return ResponseEntity.status(500).build();
+
+    }
+
     @PostMapping("/uploadFileToNode")
     public ResponseEntity<Map<String, Object>> uploadFileToNode(@RequestBody Map<String, String> uploadFile,
             @RequestHeader Map<String, String> headers)
@@ -140,7 +179,6 @@ public class RMIServiceAdapterController {
                 if (file != null) {
                     String path = file.get("route").toString() + "/" + file.get("name").toString();
                     String nodo = file.get("nodo").toString();
-                    long size = Integer.parseInt(file.get("size").toString());
 
                     RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
 
@@ -185,6 +223,7 @@ public class RMIServiceAdapterController {
 
     }
 
+    /* 
     @GetMapping("/downloadFile/{id_file}")
     public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String id_file,
             @RequestHeader Map<String, String> headers)
@@ -201,14 +240,15 @@ public class RMIServiceAdapterController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file1.getName())
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .contentLength(file1.length())
-                    .body(resource);*/
+                    .body(resource);
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return ResponseEntity.status(500).build();
 
-    }
+    }*/
+    
 
     // Autenticación de usuario
     @PostMapping("/getAuthToken")
