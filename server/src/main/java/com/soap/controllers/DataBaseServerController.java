@@ -68,15 +68,15 @@ public class DataBaseServerController {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             // Configura el método HTTP como PATCH
-            conn.setRequestMethod("PATCH");
+            conn.setRequestMethod("POST");
 
             // Establece los encabezados necesarios
             conn.setRequestProperty("Content-Type", "application/json");
-            
+            conn.setRequestProperty("X-HTTP-Method-Override", "application/json");
 
             // Habilita la salida y permite enviar datos en la solicitud (cuerpo)
             conn.setDoOutput(true);
-
+            
             // Define el cuerpo de la solicitud PATCH
             
             
