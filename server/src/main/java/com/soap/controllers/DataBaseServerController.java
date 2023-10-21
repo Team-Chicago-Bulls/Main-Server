@@ -20,7 +20,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.security.MessageDigest;
@@ -60,60 +63,37 @@ public class DataBaseServerController {
 
     public void renameTest(String nombre, String file_id, String user_id) {
         try {
-            // URL de la API que deseas consumir
-            String apiUrl = "http://distribuidos2.bucaramanga.upb.edu.co/api/file/name";
+       
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file/name";
 
-            // Abre una conexión HttpURLConnection
-            URL url = new URL(apiUrl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            Map<String, String> body = new HashMap<>();
+            body.put("name", nombre);
+            body.put("user_id", user_id);
+            body.put("file_id", file_id);
 
-            // Configura el método HTTP como PATCH
-            conn.setRequestMethod("POST");
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(body);
+          
+            java.net.http.HttpRequest request =  java.net.http.HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .method("PATCH", java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
 
-            // Establece los encabezados necesarios
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("X-HTTP-Method-Override", "application/json");
+            java.net.http.HttpResponse<String> response = java.net.http.HttpClient.newHttpClient().send(request,
+                    HttpResponse.BodyHandlers.ofString());
 
-            // Habilita la salida y permite enviar datos en la solicitud (cuerpo)
-            conn.setDoOutput(true);
-            
-            // Define el cuerpo de la solicitud PATCH
-            
-            
-            String requestBody = "{\"name\":\"" + nombre +"\" , \"user_id\":\"" + user_id + "\", \"file_id\":\"" + file_id + "\"}";;
+            System.out.println(response.statusCode());
+            System.out.println(response.body());
 
-            try (DataOutputStream dos = new DataOutputStream(conn.getOutputStream())) {
-                dos.writeBytes(requestBody);
-            }
-
-            // Obtiene la respuesta
-            int responseCode = conn.getResponseCode();
-
-            if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-
-                in.close();
-
-                // Procesa la respuesta
-                System.out.println(response.toString());
-            } else {
-                System.out.println("Error al realizar la solicitud. Código de respuesta: " + responseCode);
-            }
-
-            conn.disconnect();
+           
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void renameFileBD(String nombre, String file_id, String user_id) {
-       
+
         try {
             RestTemplate restTemplate = new RestTemplate();
 
@@ -133,31 +113,29 @@ public class DataBaseServerController {
 
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-            
             restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, String.class);
 
+            // ResponseEntity<String> response = restTemplate.patchForObject(url, new
+            // HttpEntity<>(requestBody, headers), String.class);
 
-            //ResponseEntity<String> response = restTemplate.patchForObject(url, new HttpEntity<>(requestBody, headers), String.class);
-
-            /*String response = restTemplate.patchForObject(url, requestEntity, String.class);
-
-            JsonNode jsonNode = objectMapper.readTree(response);
-
-            if (jsonNode.get("error").asBoolean() == true) {
-                System.out.println("Error al renombrar el archivo");
-                
-            } else {
-                System.out.println("Archivo renombrado correctamente");
-            }*/
-
-
+            /*
+             * String response = restTemplate.patchForObject(url, requestEntity,
+             * String.class);
+             * 
+             * JsonNode jsonNode = objectMapper.readTree(response);
+             * 
+             * if (jsonNode.get("error").asBoolean() == true) {
+             * System.out.println("Error al renombrar el archivo");
+             * 
+             * } else {
+             * System.out.println("Archivo renombrado correctamente");
+             * }
+             */
 
         } catch (Exception e) {
             System.err.println("Error al renombrar el archivo: " + e.getMessage());
-            
-        }
 
-        
+        }
 
     }
 
@@ -172,35 +150,28 @@ public class DataBaseServerController {
 
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            
-              ResponseEntity<JsonNode> response = restTemplate.getForEntity(url,
-              JsonNode.class, headers);
-              
-              JsonNode body = response.getBody();
-              
-              if (response == null || body.get("error").asBoolean() == true) {
-              return null;
-              }
-              
-              
-              Map<String,Object> resultado = new HashMap<String,Object>();
-              
-              JsonNode list = body.get("msg");
-              
-              
-              resultado.put("id", list.get(0).get("id").asText());
-              resultado.put("name", list.get(0).get("name").asText());
-              resultado.put("size", list.get(0).get("size").asText());
-              resultado.put("nodo", list.get(0).get("nodo").asText());
-              resultado.put("route", list.get(0).get("route").asText());
-              resultado.put("nodo_backup", list.get(0).get("nodo_backup").asText());
-              resultado.put("route_backup", list.get(0).get("route_backup").asText());
-              
-              
-              
-              
+            ResponseEntity<JsonNode> response = restTemplate.getForEntity(url,
+                    JsonNode.class, headers);
+
+            JsonNode body = response.getBody();
+
+            if (response == null || body.get("error").asBoolean() == true) {
+                return null;
+            }
+
+            Map<String, Object> resultado = new HashMap<String, Object>();
+
+            JsonNode list = body.get("msg");
+
+            resultado.put("id", list.get(0).get("id").asText());
+            resultado.put("name", list.get(0).get("name").asText());
+            resultado.put("size", list.get(0).get("size").asText());
+            resultado.put("nodo", list.get(0).get("nodo").asText());
+            resultado.put("route", list.get(0).get("route").asText());
+            resultado.put("nodo_backup", list.get(0).get("nodo_backup").asText());
+            resultado.put("route_backup", list.get(0).get("route_backup").asText());
+
             return resultado;
-             
 
         } catch (Exception e) {
             System.err.println("Error al obtener el token: " + e.getMessage());
