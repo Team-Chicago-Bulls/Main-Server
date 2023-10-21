@@ -102,7 +102,7 @@ public class RMIServiceAdapterController {
                 rmiService.renameFile(file.get("nodo_backup").toString(), file.get("route_backup").toString(),
                         file.get("name").toString(), newFileName);
 
-                dataBase.renameFileBD(newFileName,id_file,user);
+                dataBase.renameTest(newFileName,id_file,user);
 
             }
 
