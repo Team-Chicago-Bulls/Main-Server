@@ -61,7 +61,7 @@ public class DataBaseServerController {
         }
     }
 
-    public void renameTest(String nombre, String file_id, String user_id) {
+    public void renameFileBD(String nombre, String file_id, String user_id) {
         try {
        
             String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file/name";
@@ -92,52 +92,6 @@ public class DataBaseServerController {
         }
     }
 
-    public void renameFileBD(String nombre, String file_id, String user_id) {
-
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-
-            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file/name";
-
-            HttpHeaders headers = new HttpHeaders();
-
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, String> body = new HashMap<>();
-            body.put("name", nombre);
-            body.put("user_id", user_id);
-            body.put("file_id", file_id);
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            String requestBody = objectMapper.writeValueAsString(body);
-
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
-
-            restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, String.class);
-
-            // ResponseEntity<String> response = restTemplate.patchForObject(url, new
-            // HttpEntity<>(requestBody, headers), String.class);
-
-            /*
-             * String response = restTemplate.patchForObject(url, requestEntity,
-             * String.class);
-             * 
-             * JsonNode jsonNode = objectMapper.readTree(response);
-             * 
-             * if (jsonNode.get("error").asBoolean() == true) {
-             * System.out.println("Error al renombrar el archivo");
-             * 
-             * } else {
-             * System.out.println("Archivo renombrado correctamente");
-             * }
-             */
-
-        } catch (Exception e) {
-            System.err.println("Error al renombrar el archivo: " + e.getMessage());
-
-        }
-
-    }
 
     public Map<String, Object> getFile(String id_file, String id_user) {
         try {

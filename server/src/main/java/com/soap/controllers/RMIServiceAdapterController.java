@@ -79,10 +79,6 @@ public class RMIServiceAdapterController {
             throws RemoteException {
         try {
 
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                System.out.println(entry.getKey() + ":" + entry.getValue());
-            }
-
             String user = getUserInfo(headers.get("authorization"));
             String id_file = renameFile.get("file_id");
             String newFileName = renameFile.get("newFileName");
@@ -102,7 +98,7 @@ public class RMIServiceAdapterController {
                 rmiService.renameFile(file.get("nodo_backup").toString(), file.get("route_backup").toString(),
                         file.get("name").toString(), newFileName);
 
-                dataBase.renameTest(newFileName,id_file,user);
+                dataBase.renameFileBD(newFileName,id_file,user);
 
             }
 
