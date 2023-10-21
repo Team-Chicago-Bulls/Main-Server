@@ -74,7 +74,13 @@ public class DataBaseServerController {
 
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-            String response = restTemplate.patchForObject(url, requestEntity, String.class);
+
+            restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, String.class);
+
+
+            //ResponseEntity<String> response = restTemplate.patchForObject(url, new HttpEntity<>(requestBody, headers), String.class);
+
+            /*String response = restTemplate.patchForObject(url, requestEntity, String.class);
 
             JsonNode jsonNode = objectMapper.readTree(response);
 
@@ -83,7 +89,7 @@ public class DataBaseServerController {
                 
             } else {
                 System.out.println("Archivo renombrado correctamente");
-            }
+            }*/
 
 
 
