@@ -7,9 +7,11 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Map;
+
 @Component
 public interface RMIServiceAdapter extends Remote {
-    Map<String,String> uploadFileToNode(String user, String folderName, String fileName, String base64Data) throws RemoteException;
+    Map<String, String> uploadFileToNode(String user, String folderName, String fileName, String base64Data)
+            throws RemoteException;
 
     boolean createDirectory(String user, String path) throws RemoteException;
 
@@ -25,5 +27,7 @@ public interface RMIServiceAdapter extends Remote {
 
     boolean deleteFile(String user, String fileName) throws RemoteException;
 
-    boolean createSubdirectory(String user, String parentFolderName, String subfolderName) throws  RemoteException;
+    boolean createSubdirectory(String user, String parentFolderName, String subfolderName) throws RemoteException;
+
+    void shareFile(String sourceUser, String destinationUser, String fileName) throws RemoteException;
 }
