@@ -397,7 +397,7 @@ public class RMIServiceAdapterController {
             ResponseEntity<String> response = restTemplate.postForEntity(
                     "http://distribuidos4.bucaramanga.upb.edu.co/user/log_user", requestEntity, String.class);
 
-            if (response.getStatusCode() != HttpStatus.OK) {
+            if (response.getStatusCode() != HttpStatus.ACCEPTED) {
                 return new ResponseEntity<>(response.getBody(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
