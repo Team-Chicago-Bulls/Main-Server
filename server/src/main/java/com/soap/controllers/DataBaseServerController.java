@@ -189,7 +189,7 @@ public class DataBaseServerController {
                     JsonNode.class, headers);
 
             JsonNode body = response.getBody();
-
+            System.out.println(body);
             if (response == null || body.get("error").asBoolean() == true) {
                 return null;
             }
