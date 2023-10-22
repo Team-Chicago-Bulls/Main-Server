@@ -168,7 +168,7 @@ public class RMIServiceAdapterController {
 
             }
             if (files != null) {
-                System.out.println("Archivos encontrados: " + files.size());
+                
                 return new ResponseEntity<>(lista, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -179,28 +179,32 @@ public class RMIServiceAdapterController {
         }
     }
 
-    @GetMapping("/listFiles/{carpeta}")
-    public ResponseEntity<List<Map<String, Object>>> listFileDirectory(@PathVariable String carpeta, @RequestHeader Map<String, String> headers) {
+    @GetMapping("/listFilesInDirectory")
+    public ResponseEntity<List<Map<String, Object>>> listFileDirectory(@RequestParam String folder, @RequestHeader Map<String, String> headers) {
         String user = getUserInfo(headers.get("authorization"));
-
+        
         try {
             
             List<Map<String,Object>> files = dataBase.getFilesList(user);
             List<Map<String, Object>> lista = new ArrayList<Map<String, Object>>();
 
             for (Map<String,Object> map : files) {
-                String[] a = map.get("route").toString().split("/home/distro/nodo/" + user + "");
+                String[] a = map.get("route").toString().split("/home/distro/nodo/" + user);
                 Map<String, Object> file = new HashMap<String, Object>();
-                if (a.length >= 0 ) {
-                    file.put("size", map.get("size").toString());
-                    file.put("name", map.get("name").toString());
-                    file.put("id", map.get("id").toString());
-                    lista.add(file);
+
+                if (a.length > 0 ) {
+
+                    if (a[1].equals("/" + folder)) {
+                        file.put("size", map.get("size").toString());
+                        file.put("name", map.get("name").toString());
+                        file.put("id", map.get("id").toString());
+                        lista.add(file);
+                    }
                 }
 
             }
             if (files != null) {
-                System.out.println("Archivos encontrados: " + files.size());
+                
                 return new ResponseEntity<>(lista, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
