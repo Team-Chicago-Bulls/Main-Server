@@ -61,6 +61,40 @@ public class DataBaseServerController {
         }
     }
 
+    public void moveFileBD(String file_id, String user_id, String ruta) {
+        try {
+
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file/route";
+
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, String> body = new HashMap<>();
+            body.put("file_id", file_id);
+            body.put("user_id", user_id);
+            body.put("route", ruta);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(body);
+          
+            java.net.http.HttpRequest request =  java.net.http.HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .method("PATCH", java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            java.net.http.HttpResponse<String> response = java.net.http.HttpClient.newHttpClient().send(request,
+                    HttpResponse.BodyHandlers.ofString());
+
+            System.out.println(response.statusCode());
+            System.out.println(response.body());
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener el token: " + e.getMessage());
+        }
+    }
+
     public void renameFileBD(String nombre, String file_id, String user_id) {
         try {
        

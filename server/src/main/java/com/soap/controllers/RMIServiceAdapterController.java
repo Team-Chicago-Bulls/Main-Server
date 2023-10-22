@@ -88,9 +88,6 @@ public class RMIServiceAdapterController {
             Map<String, Object> file = dataBase.getFile(id_file, user);
 
             synchronized(file) {
-                file.get("nodo").toString();
-                file.get("route").toString();
-                file.get("name").toString();
 
                 rmiService.renameFile(file.get("nodo").toString(), file.get("route").toString(),
                         file.get("name").toString(), newFileName);
@@ -100,6 +97,42 @@ public class RMIServiceAdapterController {
 
                 dataBase.renameFileBD(newFileName,id_file,user);
 
+            }
+
+            
+            return ResponseEntity.status(200).build();
+        } catch (Exception e) {
+
+            System.out.println(e.getMessage());
+
+        }
+        return ResponseEntity.status(500).build();
+
+    }
+
+    @PatchMapping("/moveFile")
+    public ResponseEntity<Map<String, Object>> moveFile(@RequestBody Map<String, String> moveFile,
+            @RequestHeader Map<String, String> headers)
+            throws RemoteException {
+        try {
+
+            String user = getUserInfo(headers.get("authorization"));
+            String id_file = moveFile.get("file_id");
+            String targetDirectory = moveFile.get("targetDirectory");
+            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
+            
+            
+            Map<String, Object> file = dataBase.getFile(id_file, user);
+
+            synchronized(file) {
+                file.get("nodo").toString();
+                file.get("route").toString();
+                file.get("name").toString();
+
+                String directory = rmiService.moveFile(file.get("nodo").toString(), user, file.get("name").toString(), targetDirectory);
+                rmiService.moveFile(file.get("nodo_backup").toString(), user, file.get("name").toString(), targetDirectory);
+
+                dataBase.moveFileBD(id_file,user,directory);
             }
 
             
@@ -409,6 +442,11 @@ public class RMIServiceAdapterController {
             JsonNode tk = objectMapper.readTree(token);
 
             dataBase.registerUserBd(getUserInfo(tk.get("token").asText()));
+
+            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
+
+            String id = getUserInfo(tk.get("token").asText());
+            rmiService.createDirectory(id, "Shared");
 
             authToken = token;
             return ResponseEntity.ok(token);

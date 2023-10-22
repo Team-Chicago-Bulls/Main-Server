@@ -179,14 +179,15 @@ public class RMIServiceAdapterImpl {
 
 
     
-    public boolean moveFile(String fileID, String folderID, String newFolderID)throws RemoteException{
+    public String moveFile(String nodo, String fileID, String folderID, String newFolderID)throws RemoteException{
         try {
-            
+            registry = LocateRegistry.getRegistry(nodos.get(nodo), 1099);
+            rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
             rmiService.moveFile(fileID, folderID, newFolderID);
-            return true;
+            return rmiService.moveFile(fileID, folderID, newFolderID);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return "";
             //throw new RemoteException("Error al crear el directorio", e);
         }
     }
