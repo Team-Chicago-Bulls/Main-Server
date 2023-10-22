@@ -130,7 +130,7 @@ public class DataBaseServerController {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
-            String url = "http://distribuidos2.bucaramanga.upb.edu.co//api/file/list?id=" + id_user;
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file/list?id=" + id_user;
 
             HttpHeaders headers = new HttpHeaders();
 

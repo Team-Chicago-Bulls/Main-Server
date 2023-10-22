@@ -219,6 +219,10 @@ public class RMIServiceAdapterController {
                 String[] a = map.get("route").toString().split("/home/distro/nodo/" + user);
                 Map<String, Object> file = new HashMap<String, Object>();
 
+                for (String c : a) {
+                    System.out.println(c);
+                }
+
                 if (a.length > 0) {
 
                     if (a[1].equals("/" + folder)) {
