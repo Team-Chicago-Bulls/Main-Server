@@ -80,22 +80,29 @@ public class RMIServiceAdapterController {
         String user = getUserInfo(headers.get("authorization"));
         String id_file = renameFile.get("file_id");
         String newFileName = renameFile.get("newFileName");
-            System.out.println("id_file: " + id_file + " newFileName: " + newFileName);
+        System.out.println("id_file: " + id_file + " newFileName: " + newFileName);
         Map<String, Object> file = dataBase.getFile(id_file, user);
+        for (Map.Entry<String, Object> entry : file.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+
         synchronized (file) {
             try {
 
-                RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
+                if (file != null) {
+                    RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
 
-                rmiService.renameFile(file.get("nodo").toString(), file.get("route").toString(),
-                        file.get("name").toString(), newFileName);
+                    rmiService.renameFile(file.get("nodo").toString(), file.get("route").toString(),
+                            file.get("name").toString(), newFileName);
 
-                rmiService.renameFile(file.get("nodo_backup").toString(), file.get("route_backup").toString(),
-                        file.get("name").toString(), newFileName);
+                    rmiService.renameFile(file.get("nodo_backup").toString(), file.get("route_backup").toString(),
+                            file.get("name").toString(), newFileName);
 
-                dataBase.renameFileBD(newFileName, id_file, user);
+                    dataBase.renameFileBD(newFileName, id_file, user);
 
-                return ResponseEntity.status(200).build();
+                    return ResponseEntity.status(200).build();
+                } 
+               
             } catch (Exception e) {
 
                 System.out.println(e.getMessage());
