@@ -45,7 +45,7 @@ public class RMIServiceAdapterController {
             return ResponseEntity.status(200).build();
         } catch (Exception e) {
 
-            System.out.println(e.getMessage());
+            System.out.println("error al crear el directorio" + e.getMessage());
 
         }
         return ResponseEntity.status(500).build();
@@ -66,7 +66,7 @@ public class RMIServiceAdapterController {
             return ResponseEntity.status(200).build();
         } catch (Exception e) {
 
-            System.out.println(e.getMessage());
+            System.out.println("Error al crear el subdirectorio" + e.getMessage());
 
         }
         return ResponseEntity.status(500).build();
@@ -101,7 +101,7 @@ public class RMIServiceAdapterController {
 
             } catch (Exception e) {
 
-                System.out.println(e.getMessage());
+                System.out.println("Error al renombrar el archivo " + e.getMessage());
 
             }
             return ResponseEntity.status(500).build();
@@ -132,7 +132,7 @@ public class RMIServiceAdapterController {
                 return ResponseEntity.status(200).build();
             } catch (Exception e) {
 
-                System.out.println(e.getMessage());
+                System.out.println("Error al mover el archivo " + e.getMessage());
 
             }
             return ResponseEntity.status(500).build();
@@ -149,12 +149,10 @@ public class RMIServiceAdapterController {
 
             String user = getUserInfo(headers.get("authorization"));
 
-            // String user = uploadFile.get("user");
             String folderName = uploadFile.get("folderName");
             String fileName = uploadFile.get("fileName");
             String fileData = uploadFile.get("fileData");
-            // System.out.println("user: " + user + " folderName: " + folderName + "
-            // fileName: " + fileName + " fileData: " + fileData);
+ 
             Map<String, String> result = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
 
             if (result.get("error").equals("true")) {
@@ -167,7 +165,7 @@ public class RMIServiceAdapterController {
             return ResponseEntity.status(200).build();
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error al subir el archivo " + e.getMessage());
         }
         return ResponseEntity.status(500).build();
 
@@ -219,10 +217,6 @@ public class RMIServiceAdapterController {
                 String[] a = map.get("route").toString().split("/home/distro/nodo/" + user);
                 Map<String, Object> file = new HashMap<String, Object>();
 
-                for (String c : a) {
-                    System.out.println(c);
-                }
-
                 if (a.length > 0) {
 
                     if (a[1].equals("/" + folder)) {
@@ -241,7 +235,7 @@ public class RMIServiceAdapterController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            System.err.println("Error al listar archivos: " + e.getMessage());
+            System.err.println("Error al listar archivos del directorio: " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -255,7 +249,6 @@ public class RMIServiceAdapterController {
             List<String> directories = rmiService.listDirectories(user);
 
             if (directories != null) {
-                System.out.println("Directorios encontrados: " + directories.size());
                 return new ResponseEntity<>(directories, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -319,7 +312,7 @@ public class RMIServiceAdapterController {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println(e.getMessage());
+                System.out.println("Error al descargar el archivo " +e.getMessage());
                 return ResponseEntity.status(500).build();
             }
         }
@@ -336,6 +329,7 @@ public class RMIServiceAdapterController {
             dataBase.deleteFileBD(id_file, user);
             return ResponseEntity.status(200).build();
         } catch (Exception e) {
+            System.out.println("Error al eliminar el archivo " + e.getMessage());
             return ResponseEntity.status(500).build();
         }
 
@@ -368,36 +362,7 @@ public class RMIServiceAdapterController {
 
     }
 
-    /*
-     * @GetMapping("/downloadFile/{id_file}")
-     * public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String
-     * id_file,
-     * 
-     * @RequestHeader Map<String, String> headers)
-     * throws RemoteException {
-     * File file1 = null;
-     * try {
-     * RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
-     * String user = getUserInfo(headers.get("authorization"));
-     * // String fileName = downloadFile.get("fileName");
-     * //file1 = rmiService.downloadFile(user, id_file, "a");
-     * return ResponseEntity.status(500).build();
-     * /*InputStreamResource resource = new InputStreamResource(new
-     * FileInputStream(file1));
-     * return ResponseEntity.ok()
-     * .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" +
-     * file1.getName())
-     * .contentType(MediaType.APPLICATION_OCTET_STREAM)
-     * .contentLength(file1.length())
-     * .body(resource);
-     * 
-     * } catch (Exception e) {
-     * System.out.println(e.getMessage());
-     * }
-     * return ResponseEntity.status(500).build();
-     * 
-     * }
-     */
+
 
     // Autenticación de usuario
     @PostMapping("/getAuthToken")
@@ -431,6 +396,10 @@ public class RMIServiceAdapterController {
             // Realiza una solicitud POST al servidor de autenticación
             ResponseEntity<String> response = restTemplate.postForEntity(
                     "http://distribuidos4.bucaramanga.upb.edu.co/user/log_user", requestEntity, String.class);
+
+            if (response.getStatusCode() != HttpStatus.OK) {
+                return new ResponseEntity<>(response.getBody(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
 
             // Obtén el token del cuerpo de la respuesta
             String token = response.getBody();
@@ -477,14 +446,25 @@ public class RMIServiceAdapterController {
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
             // Realiza una solicitud POST al servidor de autenticación
-            restTemplate.postForEntity("http://distribuidos4.bucaramanga.upb.edu.co/user/register_user", requestEntity,
+            ResponseEntity<String> responseRegister =  restTemplate.postForEntity("http://distribuidos4.bucaramanga.upb.edu.co/user/register_user", requestEntity,
                     String.class);
+
+            
+            if (responseRegister.getStatusCode() != HttpStatus.OK) {
+
+                
+                return new ResponseEntity<>(responseRegister.getBody(), HttpStatus.INTERNAL_SERVER_ERROR);
+            
+            }
 
             ResponseEntity<String> response = restTemplate.postForEntity(
                     "http://distribuidos4.bucaramanga.upb.edu.co/user/log_user", requestEntity, String.class);
 
             // Obtén el token del cuerpo de la respuesta
             String token = response.getBody();
+
+
+
             JsonNode tk = objectMapper.readTree(token);
 
             dataBase.registerUserBd(getUserInfo(tk.get("token").asText()));
@@ -498,7 +478,7 @@ public class RMIServiceAdapterController {
             return ResponseEntity.ok(token);
 
         } catch (Exception e) {
-            System.err.println("Error al obtener el token: " + e.getMessage());
+            System.err.println("Error al registrar el usuario: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 

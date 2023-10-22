@@ -77,8 +77,8 @@ public class DataBaseServerController {
 
             ObjectMapper objectMapper = new ObjectMapper();
             String requestBody = objectMapper.writeValueAsString(body);
-          
-            java.net.http.HttpRequest request =  java.net.http.HttpRequest.newBuilder()
+
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Content-Type", "application/json")
                     .method("PATCH", java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
@@ -97,7 +97,7 @@ public class DataBaseServerController {
 
     public void renameFileBD(String nombre, String file_id, String user_id) {
         try {
-       
+
             String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file/name";
 
             Map<String, String> body = new HashMap<>();
@@ -107,8 +107,8 @@ public class DataBaseServerController {
 
             ObjectMapper objectMapper = new ObjectMapper();
             String requestBody = objectMapper.writeValueAsString(body);
-          
-            java.net.http.HttpRequest request =  java.net.http.HttpRequest.newBuilder()
+
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Content-Type", "application/json")
                     .method("PATCH", java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
@@ -120,13 +120,12 @@ public class DataBaseServerController {
             System.out.println(response.statusCode());
             System.out.println(response.body());
 
-           
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public List<Map<String,Object>> getFilesList(String id_user) {
+    public List<Map<String, Object>> getFilesList(String id_user) {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
@@ -163,7 +162,7 @@ public class DataBaseServerController {
                 lista.add(file);
             }
 
-            //resultado.put("files", lista);
+            // resultado.put("files", lista);
 
             return lista;
 
@@ -173,7 +172,7 @@ public class DataBaseServerController {
         }
     }
 
-    public  void deleteFileBD(String id_file, String id_user) {
+    public void deleteFileBD(String id_file, String id_user) {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
@@ -182,15 +181,12 @@ public class DataBaseServerController {
 
             HttpHeaders headers = new HttpHeaders();
 
-            
-
-             restTemplate.delete(url, headers);
+            restTemplate.delete(url, headers);
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
         }
     }
-
 
     public Map<String, Object> getFile(String id_file, String id_user) {
         try {
@@ -199,7 +195,6 @@ public class DataBaseServerController {
             String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file?user_id=" + id_user + "&file_id="
                     + id_file;
 
-  
             HttpHeaders headers = new HttpHeaders();
 
             headers.setContentType(MediaType.APPLICATION_JSON);
