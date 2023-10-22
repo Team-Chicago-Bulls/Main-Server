@@ -125,9 +125,6 @@ public class RMIServiceAdapterController {
             Map<String, Object> file = dataBase.getFile(id_file, user);
 
             synchronized(file) {
-                file.get("nodo").toString();
-                file.get("route").toString();
-                file.get("name").toString();
 
                 String directory = rmiService.moveFile(file.get("nodo").toString(), user, file.get("name").toString(), targetDirectory);
                 rmiService.moveFile(file.get("nodo_backup").toString(), user, file.get("name").toString(), targetDirectory);
