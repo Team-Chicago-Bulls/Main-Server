@@ -77,17 +77,15 @@ public class RMIServiceAdapterController {
     public ResponseEntity<Map<String, Object>> renameFile(@RequestBody Map<String, String> renameFile,
             @RequestHeader Map<String, String> headers)
             throws RemoteException {
-        try {
+        String user = getUserInfo(headers.get("authorization"));
+        String id_file = renameFile.get("file_id");
+        String newFileName = renameFile.get("newFileName");
 
-            String user = getUserInfo(headers.get("authorization"));
-            String id_file = renameFile.get("file_id");
-            String newFileName = renameFile.get("newFileName");
-            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
-            
-            
-            Map<String, Object> file = dataBase.getFile(id_file, user);
+        Map<String, Object> file = dataBase.getFile(id_file, user);
+        synchronized (file) {
+            try {
 
-            synchronized(file) {
+                RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
 
                 rmiService.renameFile(file.get("nodo").toString(), file.get("route").toString(),
                         file.get("name").toString(), newFileName);
@@ -95,18 +93,16 @@ public class RMIServiceAdapterController {
                 rmiService.renameFile(file.get("nodo_backup").toString(), file.get("route_backup").toString(),
                         file.get("name").toString(), newFileName);
 
-                dataBase.renameFileBD(newFileName,id_file,user);
+                dataBase.renameFileBD(newFileName, id_file, user);
+
+                return ResponseEntity.status(200).build();
+            } catch (Exception e) {
+
+                System.out.println(e.getMessage());
 
             }
-
-            
-            return ResponseEntity.status(200).build();
-        } catch (Exception e) {
-
-            System.out.println(e.getMessage());
-
+            return ResponseEntity.status(500).build();
         }
-        return ResponseEntity.status(500).build();
 
     }
 
@@ -114,32 +110,30 @@ public class RMIServiceAdapterController {
     public ResponseEntity<Map<String, Object>> moveFile(@RequestBody Map<String, String> moveFile,
             @RequestHeader Map<String, String> headers)
             throws RemoteException {
-        try {
+        String user = getUserInfo(headers.get("authorization"));
+        String id_file = moveFile.get("file_id");
+        String targetDirectory = moveFile.get("targetDirectory");
+        Map<String, Object> file = dataBase.getFile(id_file, user);
+        synchronized (file) {
+            try {
 
-            String user = getUserInfo(headers.get("authorization"));
-            String id_file = moveFile.get("file_id");
-            String targetDirectory = moveFile.get("targetDirectory");
-            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
-            
-            
-            Map<String, Object> file = dataBase.getFile(id_file, user);
+                RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
 
-            synchronized(file) {
+                String directory = rmiService.moveFile(file.get("nodo").toString(), user, file.get("name").toString(),
+                        targetDirectory);
+                rmiService.moveFile(file.get("nodo_backup").toString(), user, file.get("name").toString(),
+                        targetDirectory);
 
-                String directory = rmiService.moveFile(file.get("nodo").toString(), user, file.get("name").toString(), targetDirectory);
-                rmiService.moveFile(file.get("nodo_backup").toString(), user, file.get("name").toString(), targetDirectory);
+                dataBase.moveFileBD(id_file, user, directory);
 
-                dataBase.moveFileBD(id_file,user,directory);
+                return ResponseEntity.status(200).build();
+            } catch (Exception e) {
+
+                System.out.println(e.getMessage());
+
             }
-
-            
-            return ResponseEntity.status(200).build();
-        } catch (Exception e) {
-
-            System.out.println(e.getMessage());
-
+            return ResponseEntity.status(500).build();
         }
-        return ResponseEntity.status(500).build();
 
     }
 
@@ -176,20 +170,19 @@ public class RMIServiceAdapterController {
 
     }
 
-
     @GetMapping("/listFiles")
     public ResponseEntity<List<Map<String, Object>>> listFiles(@RequestHeader Map<String, String> headers) {
         String user = getUserInfo(headers.get("authorization"));
 
         try {
-            
-            List<Map<String,Object>> files = dataBase.getFilesList(user);
+
+            List<Map<String, Object>> files = dataBase.getFilesList(user);
             List<Map<String, Object>> lista = new ArrayList<Map<String, Object>>();
 
-            for (Map<String,Object> map : files) {
+            for (Map<String, Object> map : files) {
                 String[] a = map.get("route").toString().split("/home/distro/nodo/" + user);
                 Map<String, Object> file = new HashMap<String, Object>();
-                if (a.length == 0 ) {
+                if (a.length == 0) {
                     file.put("size", map.get("size").toString());
                     file.put("name", map.get("name").toString());
                     file.put("id", map.get("id").toString());
@@ -198,7 +191,7 @@ public class RMIServiceAdapterController {
 
             }
             if (files != null) {
-                
+
                 return new ResponseEntity<>(lista, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -210,19 +203,20 @@ public class RMIServiceAdapterController {
     }
 
     @GetMapping("/listFilesInDirectory")
-    public ResponseEntity<List<Map<String, Object>>> listFileDirectory(@RequestParam String folder, @RequestHeader Map<String, String> headers) {
+    public ResponseEntity<List<Map<String, Object>>> listFileDirectory(@RequestParam String folder,
+            @RequestHeader Map<String, String> headers) {
         String user = getUserInfo(headers.get("authorization"));
-        
+
         try {
-            
-            List<Map<String,Object>> files = dataBase.getFilesList(user);
+
+            List<Map<String, Object>> files = dataBase.getFilesList(user);
             List<Map<String, Object>> lista = new ArrayList<Map<String, Object>>();
 
-            for (Map<String,Object> map : files) {
+            for (Map<String, Object> map : files) {
                 String[] a = map.get("route").toString().split("/home/distro/nodo/" + user);
                 Map<String, Object> file = new HashMap<String, Object>();
 
-                if (a.length > 0 ) {
+                if (a.length > 0) {
 
                     if (a[1].equals("/" + folder)) {
                         file.put("size", map.get("size").toString());
@@ -234,7 +228,7 @@ public class RMIServiceAdapterController {
 
             }
             if (files != null) {
-                
+
                 return new ResponseEntity<>(lista, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -284,13 +278,14 @@ public class RMIServiceAdapterController {
 
                     byte[] file1 = rmiService.downloadFile(user, path, nodo);
 
-                    //InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
+                    // InputStreamResource resource = new InputStreamResource(new
+                    // FileInputStream(file1));
 
                     return ResponseEntity.ok()
                             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" +
                                     file.get("name").toString())
                             .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                           
+
                             .body(file1);
 
                 } else {
@@ -305,14 +300,15 @@ public class RMIServiceAdapterController {
                 RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
                 byte[] file1 = rmiService.downloadFile(user, path, nodo);
 
-                    //InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
+                // InputStreamResource resource = new InputStreamResource(new
+                // FileInputStream(file1));
 
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" +
-                                    file.get("name").toString())
-                            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                            .contentLength(size)
-                            .body(file1);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" +
+                                file.get("name").toString())
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .contentLength(size)
+                        .body(file1);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -323,32 +319,36 @@ public class RMIServiceAdapterController {
 
     }
 
-    /* 
-    @GetMapping("/downloadFile/{id_file}")
-    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String id_file,
-            @RequestHeader Map<String, String> headers)
-            throws RemoteException {
-        File file1 = null;
-        try {
-            RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
-            String user = getUserInfo(headers.get("authorization"));
-            // String fileName = downloadFile.get("fileName");
-           //file1 = rmiService.downloadFile(user, id_file, "a");
-            return ResponseEntity.status(500).build();
-            /*InputStreamResource resource = new InputStreamResource(new FileInputStream(file1));
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file1.getName())
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .contentLength(file1.length())
-                    .body(resource);
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return ResponseEntity.status(500).build();
-
-    }*/
-    
+    /*
+     * @GetMapping("/downloadFile/{id_file}")
+     * public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String
+     * id_file,
+     * 
+     * @RequestHeader Map<String, String> headers)
+     * throws RemoteException {
+     * File file1 = null;
+     * try {
+     * RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
+     * String user = getUserInfo(headers.get("authorization"));
+     * // String fileName = downloadFile.get("fileName");
+     * //file1 = rmiService.downloadFile(user, id_file, "a");
+     * return ResponseEntity.status(500).build();
+     * /*InputStreamResource resource = new InputStreamResource(new
+     * FileInputStream(file1));
+     * return ResponseEntity.ok()
+     * .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" +
+     * file1.getName())
+     * .contentType(MediaType.APPLICATION_OCTET_STREAM)
+     * .contentLength(file1.length())
+     * .body(resource);
+     * 
+     * } catch (Exception e) {
+     * System.out.println(e.getMessage());
+     * }
+     * return ResponseEntity.status(500).build();
+     * 
+     * }
+     */
 
     // Autenticación de usuario
     @PostMapping("/getAuthToken")
