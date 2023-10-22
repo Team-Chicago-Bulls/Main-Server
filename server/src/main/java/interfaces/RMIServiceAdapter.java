@@ -29,5 +29,5 @@ public interface RMIServiceAdapter extends Remote {
 
     boolean createSubdirectory(String user, String parentFolderName, String subfolderName) throws RemoteException;
 
-    void shareFile(String sourceUser, String destinationUser, String fileName) throws RemoteException;
+    Map<String, Object> shareFile(String destinationUser, String fileRoute, String fileName) throws RemoteException;
 }

@@ -219,7 +219,18 @@ public class RMIServiceAdapterImpl {
         return fileNames;
     }
 
-
+    public Map<String,Object> shareFile(String nodo,String destinationUser, String fileRoute, String fileName) throws RemoteException {
+        try {
+            registry = LocateRegistry.getRegistry(nodos.get(nodo), 1099);
+            rmiService = (RMIServiceAdapter) registry.lookup("RMIServiceAdapter");
+            return rmiService.shareFile(destinationUser, fileRoute, fileName);
+           
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+            //throw new RemoteException("Error al compartir el archivo.", e);
+        }
+    }
     
     public boolean deleteFile(String user, String fileName) throws RemoteException {
         try {

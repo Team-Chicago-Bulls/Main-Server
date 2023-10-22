@@ -80,11 +80,8 @@ public class RMIServiceAdapterController {
         String user = getUserInfo(headers.get("authorization"));
         String id_file = renameFile.get("file_id");
         String newFileName = renameFile.get("newFileName");
-        System.out.println("id_file: " + id_file + " newFileName: " + newFileName + " user: " + user);
         Map<String, Object> file = dataBase.getFile(id_file, user);
-        for (Map.Entry<String, Object> entry : file.entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
+ 
 
         synchronized (file) {
             try {
@@ -322,6 +319,34 @@ public class RMIServiceAdapterController {
                 System.out.println(e.getMessage());
                 return ResponseEntity.status(500).build();
             }
+        }
+
+    }
+
+
+    @PostMapping("/shareFile")
+    public ResponseEntity<Map<String, Object>> shareFile(@RequestBody Map<String, String> shareFile,
+            @RequestHeader Map<String, String> headers)
+            throws RemoteException {
+        String user = getUserInfo(headers.get("authorization"));
+        String destinationUser = shareFile.get("destinationUser");
+        String id_file = shareFile.get("file_id");
+
+        Map<String, Object> file = dataBase.getFile(id_file, user);
+        synchronized (file) {
+            try {
+
+                RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
+
+                //rmiService.shareFile(destinationUser, fileRoute, fileName);
+
+                return ResponseEntity.status(200).build();
+            } catch (Exception e) {
+
+                System.out.println(e.getMessage());
+
+            }
+            return ResponseEntity.status(500).build();
         }
 
     }
