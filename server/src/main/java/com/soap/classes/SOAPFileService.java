@@ -132,7 +132,7 @@ public class SOAPFileService implements ISOAPFileService {
 	public void moveFile(String fileID, String folderID, String newFolderID) {
 		try {
 			RMIServiceAdapterImpl rmiAdapter = new RMIServiceAdapterImpl();
-			rmiAdapter.moveFile("nood1",fileID, folderID, newFolderID);
+			rmiAdapter.moveFile("nodo1",fileID, folderID, newFolderID);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Error inesperado al mover el archivo.");

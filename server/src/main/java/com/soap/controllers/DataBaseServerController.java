@@ -181,6 +181,7 @@ public class DataBaseServerController {
             String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file?user_id=" + id_user + "&file_id="
                     + id_file;
 
+            System.out.println(url);
             HttpHeaders headers = new HttpHeaders();
 
             headers.setContentType(MediaType.APPLICATION_JSON);

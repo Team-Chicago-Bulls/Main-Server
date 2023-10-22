@@ -80,7 +80,7 @@ public class RMIServiceAdapterController {
         String user = getUserInfo(headers.get("authorization"));
         String id_file = renameFile.get("file_id");
         String newFileName = renameFile.get("newFileName");
-        System.out.println("id_file: " + id_file + " newFileName: " + newFileName);
+        System.out.println("id_file: " + id_file + " newFileName: " + newFileName + " user: " + user);
         Map<String, Object> file = dataBase.getFile(id_file, user);
         for (Map.Entry<String, Object> entry : file.entrySet()) {
             System.out.println(entry.getKey() + " : " + entry.getValue());
