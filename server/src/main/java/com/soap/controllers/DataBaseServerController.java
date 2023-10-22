@@ -173,6 +173,24 @@ public class DataBaseServerController {
         }
     }
 
+    public  void deleteFileBD(String id_file, String id_user) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/file?user_id=" + id_user + "&file_id="
+                    + id_file;
+
+            HttpHeaders headers = new HttpHeaders();
+
+            
+
+             restTemplate.delete(url, headers);
+
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
 
     public Map<String, Object> getFile(String id_file, String id_user) {
         try {

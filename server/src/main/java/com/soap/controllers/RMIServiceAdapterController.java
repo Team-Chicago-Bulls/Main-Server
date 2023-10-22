@@ -81,7 +81,6 @@ public class RMIServiceAdapterController {
         String id_file = renameFile.get("file_id");
         String newFileName = renameFile.get("newFileName");
         Map<String, Object> file = dataBase.getFile(id_file, user);
- 
 
         synchronized (file) {
             try {
@@ -98,8 +97,8 @@ public class RMIServiceAdapterController {
                     dataBase.renameFileBD(newFileName, id_file, user);
 
                     return ResponseEntity.status(200).build();
-                } 
-               
+                }
+
             } catch (Exception e) {
 
                 System.out.println(e.getMessage());
@@ -323,6 +322,20 @@ public class RMIServiceAdapterController {
 
     }
 
+    @DeleteMapping("/deleteFile/{id_file}")
+    public ResponseEntity<Map<String, Object>> deleteFile(@PathVariable String id_file,
+            @RequestHeader Map<String, String> headers)
+            throws RemoteException {
+
+        try {
+            String user = getUserInfo(headers.get("authorization"));
+            dataBase.deleteFileBD(id_file, user);
+            return ResponseEntity.status(200).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+
+    }
 
     @PostMapping("/shareFile")
     public ResponseEntity<Map<String, Object>> shareFile(@RequestBody Map<String, String> shareFile,
@@ -338,7 +351,7 @@ public class RMIServiceAdapterController {
 
                 RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
 
-                //rmiService.shareFile(destinationUser, fileRoute, fileName);
+                // rmiService.shareFile(destinationUser, fileRoute, fileName);
 
                 return ResponseEntity.status(200).build();
             } catch (Exception e) {
