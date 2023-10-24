@@ -2,36 +2,16 @@ package com.soap.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import interfaces.RMIServiceAdapter;
-import org.apache.coyote.Response;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 
-import com.soap.classes.RMIServiceAdapterImpl;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
-import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.rmi.RemoteException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class DataBaseServerController {
 
@@ -143,8 +123,6 @@ public class DataBaseServerController {
             if (response == null || body.get("error").asBoolean() == true) {
                 return null;
             }
-
-            Map<String, Object> resultado = new HashMap<String, Object>();
 
             JsonNode list = body.get("msg");
 

@@ -340,16 +340,30 @@ public class RMIServiceAdapterController {
             @RequestHeader Map<String, String> headers)
             throws RemoteException {
         String user = getUserInfo(headers.get("authorization"));
-        String destinationUser = shareFile.get("destinationUser");
+        String destinationUser = getIdEmail(shareFile.get("destinationUser"));
         String id_file = shareFile.get("file_id");
 
         Map<String, Object> file = dataBase.getFile(id_file, user);
+
         synchronized (file) {
             try {
 
                 RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
 
-                // rmiService.shareFile(destinationUser, fileRoute, fileName);
+                Map<String,Object> principal = rmiService.shareFile(file.get("nodo").toString(),destinationUser, file.get("route").toString(), file.get("name").toString());
+
+                Map<String,Object> copia = rmiService.shareFile(file.get("nodo_backup").toString(),destinationUser, file.get("route_backup").toString(), file.get("name").toString());
+
+                Map<String,String> resultado = new HashMap<String,String>();
+
+                resultado.put("nombre", file.get("name").toString());
+                resultado.put("nodo", file.get("nodo").toString());
+                resultado.put("size", file.get("nodo").toString());
+                resultado.put("ruta", principal.get("ruta").toString());
+                resultado.put("nodo_copia", file.get("nodo_backup").toString());
+                resultado.put("route_copia", copia.get("ruta").toString());
+
+                dataBase.uploadFileBD(resultado);
 
                 return ResponseEntity.status(200).build();
             } catch (Exception e) {
@@ -362,7 +376,43 @@ public class RMIServiceAdapterController {
 
     }
 
+    @GetMapping("/shareFolder")
+    public ResponseEntity<List<Map<String, Object>>> shareFolder(@RequestHeader Map<String, String> headers)
+            throws RemoteException {
+        String user = getUserInfo(headers.get("authorization"));
 
+        try {
+
+            List<Map<String, Object>> files = dataBase.getFilesList(user);
+            List<Map<String, Object>> lista = new ArrayList<Map<String, Object>>();
+
+            for (Map<String, Object> map : files) {
+                String[] a = map.get("route").toString().split("/home/distro/nodo/" + user);
+                Map<String, Object> file = new HashMap<String, Object>();
+
+                if (a.length > 0) {
+
+                    if (a[1].equals("/" + "Shared")) {
+                        file.put("size", map.get("size").toString());
+                        file.put("name", map.get("name").toString());
+                        file.put("id", map.get("id").toString());
+                        lista.add(file);
+                    }
+                }
+
+            }
+            if (files != null) {
+
+                return new ResponseEntity<>(lista, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al listar archivos del directorio: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 
     // Autenticación de usuario
     @PostMapping("/getAuthToken")
@@ -482,6 +532,33 @@ public class RMIServiceAdapterController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
+    }
+
+
+    public String getIdEmail(String email) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://distribuidos4.bucaramanga.upb.edu.co/user/identificacion/" + email;
+
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                String user = response.getBody();
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode id = objectMapper.readTree(user);
+
+                UID = id.get("id").asText();
+                return id.get("id").asText();
+
+            } else {
+                // Manejar otros códigos de estado si es necesario
+                return "Error al obtener información del usuario";
+            }
+        } catch (Exception e) {
+            // Manejar errores de comunicación con el servidor
+            return "Error en la solicitud al servidor";
+        }
     }
 
     public String getUserInfo(String authToken) {
