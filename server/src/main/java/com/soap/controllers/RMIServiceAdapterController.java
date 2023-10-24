@@ -3,28 +3,20 @@ package com.soap.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.coyote.Response;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 
 import com.soap.classes.RMIServiceAdapterImpl;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
+
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
-import java.security.MessageDigest;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class RMIServiceAdapterController {
@@ -152,7 +144,7 @@ public class RMIServiceAdapterController {
             String folderName = uploadFile.get("folderName");
             String fileName = uploadFile.get("fileName");
             String fileData = uploadFile.get("fileData");
- 
+
             Map<String, String> result = rmiService.uploadFileToNode(user, folderName, fileName, fileData);
 
             if (result.get("error").equals("true")) {
@@ -169,6 +161,36 @@ public class RMIServiceAdapterController {
         }
         return ResponseEntity.status(500).build();
 
+    }
+
+    @GetMapping("/usedspace")
+    public ResponseEntity<JsonNode> usedSpace(@RequestHeader Map<String, String> headers) {
+        String user = getUserInfo(headers.get("authorization"));
+        if (user.equals("Error al obtener información del usuario")
+                || user.equals("Error en la solicitud al servidor")) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("error", true);
+            map.put("msg", "Token Invalid");
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.valueToTree(map);
+            return new ResponseEntity<JsonNode>(jsonNode, HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+
+            JsonNode space = dataBase.getUseSpace(user);
+
+            if (space.get("error").asBoolean() == true) {
+
+                return new ResponseEntity<JsonNode>(space, HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<JsonNode>(space, HttpStatus.OK);
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener el espacio: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/listFiles")
@@ -312,7 +334,7 @@ public class RMIServiceAdapterController {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Error al descargar el archivo " +e.getMessage());
+                System.out.println("Error al descargar el archivo " + e.getMessage());
                 return ResponseEntity.status(500).build();
             }
         }
@@ -350,12 +372,14 @@ public class RMIServiceAdapterController {
 
                 RMIServiceAdapterImpl rmiService = new RMIServiceAdapterImpl();
 
-                Map<String,Object> principal = rmiService.shareFile(file.get("nodo").toString(),destinationUser, file.get("route").toString(), file.get("name").toString());
+                Map<String, Object> principal = rmiService.shareFile(file.get("nodo").toString(), destinationUser,
+                        file.get("route").toString(), file.get("name").toString());
 
-                Map<String,Object> copia = rmiService.shareFile(file.get("nodo_backup").toString(),destinationUser, file.get("route_backup").toString(), file.get("name").toString());
+                Map<String, Object> copia = rmiService.shareFile(file.get("nodo_backup").toString(), destinationUser,
+                        file.get("route_backup").toString(), file.get("name").toString());
 
-                Map<String,String> resultado = new HashMap<String,String>();
-                
+                Map<String, String> resultado = new HashMap<String, String>();
+
                 String ruta_principal = principal.get("ruta").toString();
                 String ruta_copia = copia.get("ruta").toString();
 
@@ -392,7 +416,7 @@ public class RMIServiceAdapterController {
 
             for (Map<String, Object> map : files) {
                 String[] a = map.get("route").toString().split("/home/distro/nodo/" + user);
-                for(String b: a) {
+                for (String b : a) {
                     System.out.println(b);
                 }
                 Map<String, Object> file = new HashMap<String, Object>();
@@ -503,15 +527,14 @@ public class RMIServiceAdapterController {
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
             // Realiza una solicitud POST al servidor de autenticación
-            ResponseEntity<String> responseRegister =  restTemplate.postForEntity("http://distribuidos4.bucaramanga.upb.edu.co/user/register_user", requestEntity,
+            ResponseEntity<String> responseRegister = restTemplate.postForEntity(
+                    "http://distribuidos4.bucaramanga.upb.edu.co/user/register_user", requestEntity,
                     String.class);
 
-            
             if (responseRegister.getStatusCode() != HttpStatus.OK) {
 
-                
                 return new ResponseEntity<>(responseRegister.getBody(), HttpStatus.INTERNAL_SERVER_ERROR);
-            
+
             }
 
             ResponseEntity<String> response = restTemplate.postForEntity(
@@ -519,8 +542,6 @@ public class RMIServiceAdapterController {
 
             // Obtén el token del cuerpo de la respuesta
             String token = response.getBody();
-
-
 
             JsonNode tk = objectMapper.readTree(token);
 
@@ -540,7 +561,6 @@ public class RMIServiceAdapterController {
         }
 
     }
-
 
     public String getIdEmail(String email) {
         RestTemplate restTemplate = new RestTemplate();
@@ -587,6 +607,7 @@ public class RMIServiceAdapterController {
             } else {
                 // Manejar otros códigos de estado si es necesario
                 return "Error al obtener información del usuario";
+
             }
         } catch (Exception e) {
             // Manejar errores de comunicación con el servidor

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.soap.classes.RMIServiceAdapterImpl;
+
 import com.soap.interfaces.ISOAPFileService;
 
 @WebService(endpointInterface = "com.soap.interfaces.ISOAPFileService")

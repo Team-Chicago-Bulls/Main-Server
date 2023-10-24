@@ -1,23 +1,19 @@
 package com.soap.classes;
 
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import interfaces.RMIServiceAdapter;
 
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.io.File;
 
 
 @Component

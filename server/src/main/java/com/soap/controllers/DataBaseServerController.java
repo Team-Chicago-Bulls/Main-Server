@@ -19,6 +19,29 @@ public class DataBaseServerController {
 
     }
 
+    public JsonNode getUseSpace(String id) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            String url = "http://distribuidos2.bucaramanga.upb.edu.co/api/user/uso?id=" + id;
+
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            ResponseEntity<JsonNode> response = restTemplate.getForEntity(url,
+                    JsonNode.class, headers);
+
+            JsonNode body = response.getBody();
+
+            return body;
+
+        } catch (Exception e) {
+            System.err.println("Error al obtener el espacio utilizado: " + e.getMessage());
+            return null;
+        }
+    }
+
     public void uploadFileBD(Map<String, String> resultado) {
         try {
             RestTemplate restTemplate = new RestTemplate();
