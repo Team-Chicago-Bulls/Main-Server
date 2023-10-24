@@ -358,7 +358,7 @@ public class RMIServiceAdapterController {
 
                 resultado.put("nombre", file.get("name").toString());
                 resultado.put("nodo", file.get("nodo").toString());
-                resultado.put("size", file.get("nodo").toString());
+                resultado.put("size", file.get("size").toString());
                 resultado.put("ruta", principal.get("ruta").toString());
                 resultado.put("nodo_copia", file.get("nodo_backup").toString());
                 resultado.put("route_copia", copia.get("ruta").toString());
