@@ -362,6 +362,7 @@ public class RMIServiceAdapterController {
                 resultado.put("ruta", principal.get("ruta").toString());
                 resultado.put("nodo_copia", file.get("nodo_backup").toString());
                 resultado.put("route_copia", copia.get("ruta").toString());
+                resultado.put("id_user", destinationUser);
 
                 dataBase.uploadFileBD(resultado);
 
