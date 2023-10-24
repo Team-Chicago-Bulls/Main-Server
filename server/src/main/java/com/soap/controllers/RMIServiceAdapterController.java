@@ -355,13 +355,16 @@ public class RMIServiceAdapterController {
                 Map<String,Object> copia = rmiService.shareFile(file.get("nodo_backup").toString(),destinationUser, file.get("route_backup").toString(), file.get("name").toString());
 
                 Map<String,String> resultado = new HashMap<String,String>();
+                
+                String ruta_principal = principal.get("ruta").toString();
+                String ruta_copia = copia.get("ruta").toString();
 
                 resultado.put("nombre", file.get("name").toString());
                 resultado.put("nodo", file.get("nodo").toString());
                 resultado.put("size", file.get("size").toString());
-                resultado.put("ruta", principal.get("ruta").toString());
+                resultado.put("ruta", ruta_principal.substring(0, ruta_principal.lastIndexOf("/")));
                 resultado.put("nodo_copia", file.get("nodo_backup").toString());
-                resultado.put("route_copia", copia.get("ruta").toString());
+                resultado.put("route_copia", ruta_copia.substring(0, ruta_copia.lastIndexOf("/")));
                 resultado.put("id_user", destinationUser);
 
                 dataBase.uploadFileBD(resultado);
@@ -389,6 +392,9 @@ public class RMIServiceAdapterController {
 
             for (Map<String, Object> map : files) {
                 String[] a = map.get("route").toString().split("/home/distro/nodo/" + user);
+                for(String b: a) {
+                    System.out.println(b);
+                }
                 Map<String, Object> file = new HashMap<String, Object>();
 
                 if (a.length > 0) {
