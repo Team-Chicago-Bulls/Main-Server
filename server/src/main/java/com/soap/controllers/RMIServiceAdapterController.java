@@ -362,6 +362,14 @@ public class RMIServiceAdapterController {
             @RequestHeader Map<String, String> headers)
             throws RemoteException {
         String user = getUserInfo(headers.get("authorization"));
+        if (user.equals("Error al obtener información del usuario")
+                || user.equals("Error en la solicitud al servidor")) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("error", true);
+            map.put("msg", "Token Invalid");
+            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.UNAUTHORIZED);
+        }
+
         String destinationUser = getIdEmail(shareFile.get("destinationUser"));
         String id_file = shareFile.get("file_id");
 

@@ -1,3 +1,4 @@
 server/target/
 server/.idea/
 server/.settings/
+.vscode/
