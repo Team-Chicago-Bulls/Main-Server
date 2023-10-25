@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.rmi.RemoteException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -373,7 +374,15 @@ public class RMIServiceAdapterController {
         String destinationUser = getIdEmail(shareFile.get("destinationUser"));
         String id_file = shareFile.get("file_id");
 
+        System.out.println(destinationUser + " " + id_file);
+
+
         Map<String, Object> file = dataBase.getFile(id_file, user);
+        
+        Collection<Object> values = file.values();
+        for (Object value : values) {
+            System.out.println(value);
+        }
 
         synchronized (file) {
             try {
