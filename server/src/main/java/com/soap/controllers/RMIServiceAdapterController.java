@@ -372,6 +372,16 @@ public class RMIServiceAdapterController {
         }
 
         String destinationUser = getIdEmail(shareFile.get("destinationUser"));
+
+        if (destinationUser.equals("Error al obtener información del usuario")
+                || destinationUser.equals("Error en la solicitud al servidor")) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("error", true);
+            map.put("msg", "destinationUser Not Found");
+            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.NOT_FOUND);
+        }
+
+
         String id_file = shareFile.get("file_id");
 
         System.out.println(destinationUser + " " + id_file);
